@@ -1,0 +1,10 @@
+{
+  "key_id": "solo-test-2026-11",
+  "alg": "ES256",
+  "nivel": "solo-test",
+  "descripcion": "Par de claves de prueba, desechable. Nivel 'fixtures' del plan v0.1: firmar listas de prueba con ella es intencional. NO usar para la clave beta (secreto de Actions, la instala BE-02) ni para produccion.",
+  "curva": "P-256",
+  "formato_firma": "ECDSA DER sobre los bytes ASCII de payload_b64 (compatible con JCA SHA256withECDSA / X509EncodedKeySpec)",
+  "creada": "2026-11-21",
+  "uso_previsto": "tests, fixtures y la lista vacia inicial publicada en Pages durante Ola 0"
+}
