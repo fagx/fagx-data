@@ -247,7 +247,7 @@ function cmdPublish(argv) {
       fail('BLOCKLIST_SIGNING_KEY_BETA is not set (the beta private key lives only as a GitHub Actions secret)');
     }
     key = {
-      privateKeyPem,
+      privateKeyPem: privatePem,
       keyId: 'beta-2026-11',
       publicPem: fs.readFileSync(path.join(KEYS_DIR, 'beta', 'public.pem'), 'utf8'),
     };
