@@ -1,0 +1,55 @@
+name: validate
+
+# Every PR: JSON schemas for the institutional list, envelope integrity,
+# sign/verify round-trip with the solo-test key, shrink guard, simulated
+# quota budget, secret scan, unit tests, and a full pipeline dry-run
+# against the Firestore emulator with fixtures.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: schemas, envelope, guards, quota, tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: pipeline/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Static validation (node run.js ci)
+        run: node run.js ci
+
+  dry-run:
+    name: pipeline dry-run (Firestore emulator + fixtures)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: pipeline/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      # Java (required by the Firestore emulator) is preinstalled on ubuntu-latest.
+      - name: Dry-run against Firestore emulator with fixtures
+        run: >-
+          npx -y firebase-tools@latest emulators:exec
+          --only firestore
+          --project fagx-dry-run
+          "node run.js dry-run"
