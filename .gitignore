@@ -1,0 +1,5 @@
+# Build output of the dry-run (candidate lists are never committed from CI)
+pipeline/.build/
+node_modules/
+*.log
+.DS_Store
