@@ -1,0 +1,68 @@
+name: publish
+
+# Builds and signs the blocklist with the beta key (GitHub Actions secret
+# BLOCKLIST_SIGNING_KEY_BETA — the private material never leaves Actions),
+# commits blocklist.json + the builds/ log entry to main, and lets Pages
+# (deploy from branch) serve the updated list.
+#
+# Run manually after a data/ or pipeline/ change reaches main. Validation
+# (validate.yml) covers every PR and push; this workflow re-runs the same
+# static validation before signing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      secuencia:
+        description: 'Optional secuencia override (default: previous published + 1)'
+        required: false
+        type: string
+      modo:
+        description: 'Build-log mode tag (default: v1)'
+        required: false
+        default: 'v1'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-blocklist
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: build, sign, publish (beta key)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: pipeline/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+        working-directory: pipeline
+      - name: Static validation before signing
+        run: node run.js ci
+        working-directory: pipeline
+      - name: Build and sign the list (beta key from Actions secret)
+        env:
+          BLOCKLIST_SIGNING_KEY_BETA: ${{ secrets.BLOCKLIST_SIGNING_KEY_BETA }}
+        run: >-
+          node run.js publish
+          ${{ inputs.secuencia && format('--secuencia {0}', inputs.secuencia) || '' }}
+          --modo ${{ inputs.modo || 'v1' }}
+        working-directory: pipeline
+      - name: Commit and push the signed list
+        run: |
+          LATEST=$(ls -t builds/*-seq-*.json | head -1)
+          SEQ=$(python3 -c "import json; print(json.load(open('${LATEST}'))['secuencia'])")
+          KEY_ID=$(python3 -c "import json; print(json.load(open('${LATEST}'))['key_id'])")
+          git config user.name "fagx-pipeline[bot]"
+          git config user.email "fagx-pipeline[bot]@users.noreply.github.com"
+          git add blocklist.json builds/
+          if git diff --cached --quiet; then
+            echo "nothing to publish"; exit 0
+          fi
+          git commit -m "chore: publish blocklist seq ${SEQ} (${KEY_ID})"
+          git push

@@ -10,10 +10,11 @@ fagx-data/
 ├── data/institutional-allowlist.json    # solo se edita por PR con revisión
 ├── schemas/                             # JSON Schema: lista institucional, sobre, payload
 ├── pipeline/                            # ingesta → agrega → firma → publica → borra
-│   ├── run.js                           # cli: ci | dry-run | publish-empty
+│   ├── run.js                           # cli: ci | dry-run | publish
 │   ├── src/                             # etapas, sobre, guards, cuota
 │   ├── test/                            # node:test (JVM-free, corren en segundos)
 │   ├── keys/solo-test/                  # clave de test commiteada (intencional, desechable)
+│   ├── keys/beta/                       # mitad pública de la clave beta; la privada es secreto de Actions
 │   └── fixtures/                        # reportes ficticios + lista dorada del dry-run
 ├── builds/                              # bitácora por publicación: conteos y hashes, nunca números
 └── docs/                                # este runbook, formato del sobre, rotación
@@ -46,18 +47,22 @@ El dry-run es determinista: siembra fixtures ficticios (`pipeline/fixtures/repor
 
 ## Publicación
 
-La publicación automatizada la implementa BE-02 (pipeline v1, firma con clave beta desde un secreto de Actions). Para la lista inicial y operaciones manuales de mantenedor:
+La lista se publica con el workflow **`publish.yml`** (manual, `workflow_dispatch`): re-ejecuta la validación estática, construye el payload desde `data/`, firma con la **clave beta** (secreto de Actions `BLOCKLIST_SIGNING_KEY_BETA`; la clave privada nunca sale de Actions), commitea `blocklist.json` + la entrada de `builds/` y hace push — Pages (deploy from branch) sirve la lista nueva en minutos.
+
+Para operaciones manuales de mantenedor (nivel test, desechable):
 
 ```bash
 cd pipeline
-node run.js publish-empty      # firma lista vacía con la clave de test
+node run.js publish --key-solo-test   # firma con la clave de test commiteada
+# opciones: --secuencia N (override, justificado en la bitácora) · --modo TAG
+# la ruta beta usa el mismo comando con BLOCKLIST_SIGNING_KEY_BETA en el entorno
 ```
 
-Escribe `blocklist.json` + una entrada en `builds/` (conteos y hashes, nunca números). **Solo la clave de test firma así**; la beta/producción usan su propio camino.
+Escribe `blocklist.json` + una entrada en `builds/` (conteos y hashes, nunca números).
 
 ### Cambiar `blocklist.json` a mano es un error
 
-La lista se publica con `secuencia` creciente y sobre firmado; una edición manual rompe la cadena y el CI lo detecta (verificación de firma + guard de secuencia en BE-02).
+La lista se publica con `secuencia` creciente y sobre firmado; una edición manual rompe la cadena y el CI lo detecta (verificación de firma + guard de secuencia). El guard de encogimiento >50 % corre en cada publicación; una reducción mayor exige `--allow-shrink` documentado (los datos de v0.1 solo crecen por PR revisado).
 
 ## Guard de encogimiento (>50 %)
 

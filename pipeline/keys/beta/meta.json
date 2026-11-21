@@ -1,0 +1,11 @@
+{
+  "key_id": "beta-2026-11",
+  "alg": "ES256",
+  "nivel": "beta",
+  "descripcion": "Clave beta de firma de listas internas (v0.1). La parte privada vive EXCLUSIVAMENTE como secreto de GitHub Actions (BLOCKLIST_SIGNING_KEY_BETA); nunca se commitea ni se registra en documentos o logs. Respaldo en custodia (Q3: dos copias cifradas, Fernando + CTO) pendiente de ceremonia; si se pierde o compromete, aplicar el procedimiento de rotacion/compromiso de docs/rotacion-de-claves.md.",
+  "curva": "P-256",
+  "formato_firma": "ECDSA DER sobre los bytes ASCII de payload_b64 (compatible con JCA SHA256withECDSA / X509EncodedKeySpec)",
+  "creada": "2026-11-21",
+  "instalada_por": "BE-02 (FAG-15)",
+  "uso_previsto": "todas las listas firmadas de v0.1 (interno)"
+}

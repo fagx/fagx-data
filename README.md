@@ -12,7 +12,7 @@ Repositorio **público** de datos y pipeline de **Fagx**, filtro de llamadas par
 | Ruta | Contenido |
 |---|---|
 | `blocklist.json` | Lista firmada publicada por Pages (formato en [`docs/sobre-firmado.md`](docs/sobre-firmado.md)) |
-| `data/institutional-allowlist.json` | Lista institucional semilla (D4); se edita **solo** por PR con revisión |
+| `data/institutional-allowlist.json` | Lista institucional (D4), semilla SEC-01 con 45 entradas verificadas ([criterio](docs/institutional-allowlist-criteria.md)); se edita **solo** por PR con revisión |
 | `pipeline/` | Pipeline de publicación + clave de test + fixtures del dry-run |
 | `builds/` | Bitácora por publicación: secuencia, conteos y hashes, nunca números |
 | `schemas/` | JSON Schema de la lista institucional, del sobre y del payload |
@@ -31,7 +31,7 @@ Repositorio **público** de datos y pipeline de **Fagx**, filtro de llamadas par
 
 ## Claves
 
-La clave de `pipeline/keys/solo-test/` está commiteada **a propósito** (nivel *fixtures* del plan): es un par de prueba desechable, marcado `solo-test`, usado para la lista vacía inicial y los tests. La clave beta de v0.1 vive como secreto de Actions y la instala BE-02; la de producción no existe aún (ceremonia P-09/Q3 antes del primer release público).
+La clave de `pipeline/keys/solo-test/` está commiteada **a propósito** (nivel *fixtures* del plan): es un par de prueba desechable, marcado `solo-test`, usado para el scaffold de Ola 0 y los tests. La **clave beta** (`beta-2026-11`) ya está instalada: la mitad pública está en `pipeline/keys/beta/` y la privada vive como secreto de Actions (`BLOCKLIST_SIGNING_KEY_BETA`); firma todas las listas de v0.1 vía el workflow [`publish.yml`](.github/workflows/publish.yml). La de producción no existe aún (ceremonia P-09/Q3 antes del primer release público).
 
 ## Desarrollo local
 

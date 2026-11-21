@@ -13,7 +13,7 @@ Referencia: P-09 (custodia, pendiente de Q3) · [Formato del sobre](sobre-firmad
 | Nivel | Dónde vive | Rotación |
 |---|---|---|
 | `solo-test` | Commiteada, marcada desechable. Firmar fixtures con ella es intencional. | Rota cuando se quiera; se elimina cuando deja de usarse en fixtures |
-| Beta (v0.1 interno) | Secreto de GitHub Actions (`BLOCKLIST_SIGNING_KEY_BETA`); la instala BE-02 | Procedimiento de abajo |
+| Beta (v0.1 interno) | Secreto de GitHub Actions (`BLOCKLIST_SIGNING_KEY_BETA`); instalado por BE-02 el 2026-11-21 (`key_id` `beta-2026-11`) | Procedimiento de abajo |
 | Producción | No existe aún. Ceremonia antes del primer release público; custodia doble según P-09 (dos copias cifradas, custodia separada; pendiente nombre del custodio, Q3) | Procedimiento de abajo, con ceremonia |
 
 ## Rotación planeada (sin compromiso)
