@@ -1,0 +1,59 @@
+rules_version = '2';
+
+// fagx-data pipeline database (v0.2 track, BE-03).
+//
+// Model:
+// - The pipeline runs server-side as an admin client (SDK admin bypass;
+//   in the emulator, the `Bearer owner` token). Its access is never
+//   granted by these rules.
+// - The app (Android, anonymous auth) may only CREATE reports, never
+//   read/update/delete them: raw report contents are write-only for
+//   clients (privacy by design). The blocklist comes from GitHub Pages,
+//   not from Firestore.
+// - aggregates/ and pipeline_status/ carry no client access at all.
+// Field shape: numero is a Chilean phone-number string, uid_hash is a
+// 16-hex-char truncated sha256 (raw uids never leave the app), and the
+// retention window is exactly 90 days (P-16: expira_en = creado_en +
+// 7776000; retention lives in the pipeline, not a TTL).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isReporter() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function reportShapeOk() {
+      return request.resource.data.keys().hasOnly(
+        ['numero', 'uid_hash', 'creado_en', 'expira_en'])
+        && request.resource.data.numero is string
+        && request.resource.data.numero.size() >= 9
+        && request.resource.data.numero.size() <= 11
+        && request.resource.data.numero.matches('^\\d+$')
+        && request.resource.data.uid_hash is string
+        && request.resource.data.uid_hash.matches('^[0-9a-f]{16}$')
+        && request.resource.data.creado_en is int
+        && request.resource.data.expira_en is int
+        && request.resource.data.creado_en > 0
+        && request.resource.data.expira_en == request.resource.data.creado_en + 7776000;
+    }
+
+    match /reports/{reportId} {
+      allow create: if isReporter() && reportShapeOk();
+      allow read, update, delete: if false;
+    }
+
+    match /aggregates/{docId} {
+      allow read, write: if false;
+    }
+
+    match /pipeline_status/{docId} {
+      allow read, write: if false;
+    }
+
+    // Default deny for everything else.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
