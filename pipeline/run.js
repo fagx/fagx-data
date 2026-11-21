@@ -9,10 +9,15 @@
  *   node run.js publish       — build and sign the list, publish blocklist.json + builds/ log
  *
  * publish defaults to the beta key (env BLOCKLIST_SIGNING_KEY_BETA, GitHub
- * Actions secret — never committed). `--key-solo-test` signs with the
- * committed disposable test key (maintainer/test use only). `--secuencia N`
- * overrides the sequence number (default: previous published + 1); any
- * override is justified in the build log.
+ * Actions secret — never committed); its key_id is resolved from the
+ * committed keyring by public-key match, so rotations need no code
+ * change. `--key-solo-test` signs with the committed disposable test key
+ * (maintainer/test use only). `--lista-vacia` publishes the ceremony
+ * transition list (empty: only the 600/809 prefixes; modo
+ * ceremonia-rotacion) — the P-09/Q3 step that anchors trust in a new
+ * key. `--secuencia N` overrides the sequence number (default: previous
+ * published + 1); any override is justified in the build log.
+ * `--allow-shrink` overrides the 50% shrink guard in a supervised run.
  *
  * The dry-runs are deterministic: fixture `now`/`cursor` are fixed and the
  * canonical payload is compared byte-to-byte against
@@ -231,7 +236,6 @@ function argValue(argv, name, fallback) {
 function cmdPublish(argv) {
   const useTestKey = argv.includes('--key-solo-test');
   const secuenciaOverride = argValue(argv, '--secuencia', null);
-  const modo = argValue(argv, '--modo', useTestKey ? 'mantenedor-test' : 'v1');
 
   const published = readPublished();
   const isLegacy = published.legacy;
@@ -250,12 +254,28 @@ function cmdPublish(argv) {
     if (!privatePem || !privatePem.includes('PRIVATE KEY')) {
       fail('BLOCKLIST_SIGNING_KEY_BETA is not set (the beta private key lives only as a GitHub Actions secret)');
     }
+    // key_id and public half are resolved from the committed keyring by
+    // matching the public half of the installed secret, so a beta
+    // rotation only needs a new keyring entry + the new secret (never a
+    // code change). A retired beta public key (e.g. beta/ after the
+    // FAG-32 rotation) has no matching private half and is skipped.
+    const publicPem = crypto.createPublicKey(privatePem).export({ type: 'spki', format: 'pem' });
+    const match = loadKeyring(KEYS_DIR).keys.find(
+      (k) => k.nivel === 'beta' && k.publicPem.trim() === publicPem.trim()
+    );
+    if (!match) {
+      fail('BLOCKLIST_SIGNING_KEY_BETA does not match any committed beta public key in pipeline/keys/ (add the rotated keyring entry first)');
+    }
     key = {
       privateKeyPem: privatePem,
-      keyId: 'beta-2026-11',
-      publicPem: fs.readFileSync(path.join(KEYS_DIR, 'beta', 'public.pem'), 'utf8'),
+      keyId: match.key_id,
+      publicPem: match.publicPem,
     };
   }
+
+  const listaVacia = argv.includes('--lista-vacia');
+  const allowShrink = argv.includes('--allow-shrink') || listaVacia;
+  const modo = argValue(argv, '--modo', useTestKey ? 'mantenedor-test' : (listaVacia ? 'ceremonia-rotacion' : 'v1'));
 
   const generadoEn = Math.floor(Date.now() / 1000);
   const prevSecuencia = published.payload ? published.payload.secuencia : 0;
@@ -264,11 +284,17 @@ function cmdPublish(argv) {
   if (secuenciaOverride !== null && secuencia !== prevSecuencia + 1) {
     console.warn(`note: secuencia override ${secuencia} (prev published ${prevSecuencia}); justified in the build log`);
   }
-  const payload = buildPayload({ institutional: loadInstitutional(), secuencia, generadoEn });
+  // lista vacía de ceremonia (rotación/compromiso): solo prefijos 600/809.
+  // Es el paso 4 del procedimiento de ceremonia (docs/rotacion-de-claves.md,
+  // P-09/Q3): la primera lista firmada con la clave nueva prueba la
+  // confianza end-to-end antes de volver al contenido real.
+  const institutional = listaVacia ? [] : loadInstitutional();
+  const payload = buildPayload({ institutional, secuencia, generadoEn });
 
   const envelope = publish(payload, key, {
     outPath: PUBLISHED_BLOCKLIST,
     previousCount: publishedCount(published.payload),
+    allowShrink,
   });
 
   // re-read from disk: the published list must verify with the repo keyring
@@ -280,7 +306,9 @@ function cmdPublish(argv) {
   const stamp = new Date(generadoEn * 1000).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
   const notas = useTestKey
     ? 'Lista firmada con la clave de test (uso de mantenedor). Los numeros jamas aparecen aqui; solo conteos y hashes.'
-    : 'Lista real de v0.1: institucional (semilla SEC-01, criterio v2) + prefijos, firmada con la clave beta (secreto de Actions). Los numeros jamas aparecen aqui; solo conteos y hashes.';
+    : listaVacia
+      ? 'Lista vacia de transicion (ceremonia de rotacion Q3): solo prefijos 600/809, firmada con la clave beta nueva para anclar la confianza antes de volver al contenido real (Fase 0 / P-09). Los numeros jamas aparecen aqui; solo conteos y hashes.'
+      : 'Lista real de v0.1: institucional (semilla SEC-01, criterio v2) + prefijos, firmada con la clave beta (secreto de Actions). Los numeros jamas aparecen aqui; solo conteos y hashes.';
   const buildLog = {
     fecha: new Date(generadoEn * 1000).toISOString(),
     secuencia,

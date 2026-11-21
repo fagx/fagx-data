@@ -208,11 +208,11 @@ function buildPayload({ institutional, secuencia, generadoEn }) {
  * the envelope as blocklist.json (publish stage; dry-run writes to the
  * build output dir, never committing from CI).
  */
-function publish(payload, signingKey, { outPath, previousCount } = {}) {
+function publish(payload, signingKey, { outPath, previousCount, allowShrink } = {}) {
   const check = checkPayload(payload);
   if (!check.ok) throw new Error(`payload invalid: ${check.reason}`);
 
-  const guard = shrinkGuard(previousCount ?? 0, listSize(payload));
+  const guard = shrinkGuard(previousCount ?? 0, listSize(payload), { allowShrink: allowShrink === true });
   if (!guard.ok) throw new Error(`shrink guard failed: ${guard.reason}`);
 
   const envelope = signEnvelope(payload, signingKey);

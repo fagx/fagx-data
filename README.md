@@ -31,7 +31,7 @@ Repositorio **público** de datos y pipeline de **Fagx**, filtro de llamadas par
 
 ## Claves
 
-La clave de `pipeline/keys/solo-test/` está commiteada **a propósito** (nivel *fixtures* del plan): es un par de prueba desechable, marcado `solo-test`, usado para el scaffold de Ola 0 y los tests. La **clave beta** (`beta-2026-11`) ya está instalada: la mitad pública está en `pipeline/keys/beta/` y la privada vive como secreto de Actions (`BLOCKLIST_SIGNING_KEY_BETA`); firma todas las listas de v0.1 vía el workflow [`publish.yml`](.github/workflows/publish.yml). La de producción no existe aún (ceremonia P-09/Q3 antes del primer release público).
+La clave de `pipeline/keys/solo-test/` está commiteada **a propósito** (nivel *fixtures* del plan): es un par de prueba desechable, marcado `solo-test`, usado para el scaffold de Ola 0 y los tests. La **clave beta** vigente es `beta-2026-11-b` (rotación FAG-32 del 2026-11-21): la mitad pública está en `pipeline/keys/beta-2026-11-b/`, la privada vive como secreto de Actions (`BLOCKLIST_SIGNING_KEY_BETA`) y su respaldo Q3 son dos copias cifradas en custodia separada (Fernando + CTO). Firma todas las listas de v0.1 vía el workflow [`publish.yml`](.github/workflows/publish.yml). La de producción no existe aún (ceremonia P-09/Q3 antes del primer release público).
 
 ## Desarrollo local
 
