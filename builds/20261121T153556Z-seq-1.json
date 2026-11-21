@@ -1,0 +1,16 @@
+{
+  "fecha": "2026-11-21T15:35:56.000Z",
+  "secuencia": 1,
+  "key_id": "beta-2026-11",
+  "nivel": "beta",
+  "modo": "v1-primera-publicacion",
+  "conteos": {
+    "institucional": 45,
+    "rangos_institucionales": 0,
+    "prefijos": 2,
+    "comunitarios": 0
+  },
+  "sha256_payload": "e9dc1babe8d1d1aba11fb1931929507e6d4d5fe091192a657c96ea7f799a0c9c",
+  "sha256_envelope": "d94aa91899d3bf1f2c926e479be6a80598242f07e05048db563f3f48c688da66",
+  "notas": "Lista real de v0.1: institucional (semilla SEC-01, criterio v2) + prefijos, firmada con la clave beta (secreto de Actions). Los numeros jamas aparecen aqui; solo conteos y hashes."
+}
