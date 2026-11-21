@@ -1,0 +1,15 @@
+{
+  "fecha": "2026-11-21T13:41:02.000Z",
+  "secuencia": 1,
+  "key_id": "solo-test-2026-11",
+  "nivel": "solo-test",
+  "modo": "inicial-ola-0",
+  "conteos": {
+    "institucional": 0,
+    "prefijos": 2,
+    "comunitarios": 0
+  },
+  "sha256_payload": "6b10e446effdbd7079eda4d00bad439f722d288eb877a6d08646ed725c056fdc",
+  "sha256_envelope": "f389957a342e771556d3c9d3421a12777837a9adfc21b633d7bf3c669221b9ac",
+  "notas": "Lista vacia (solo prefijos 600/809) firmada con la clave de test. Los numeros jamas aparecen aqui; solo conteos y hashes."
+}

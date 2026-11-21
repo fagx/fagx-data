@@ -1,0 +1,8 @@
+{
+  "format": "fagx-blocklist",
+  "format_version": 1,
+  "alg": "ES256",
+  "key_id": "solo-test-2026-11",
+  "payload_b64": "eyJnZW5lcmFkb19lbiI6MTc5NTI2ODQ2MiwiaW5zdGl0dWNpb25hbCI6W10sInByZWZpam9zIjpbIjYwMCIsIjgwOSJdLCJzY2hlbWFfdmVyc2lvbiI6MSwic2VjdWVuY2lhIjoxfQ==",
+  "signature_b64": "MEYCIQDbLND/nrVEtjhvijYKCsftGIrK62TjXKxnBvsOnCAGxQIhAPTQ5V7sRaACzK8NxcRhvT7EovJzMOxuX+40JTWWVPY+"
+}
