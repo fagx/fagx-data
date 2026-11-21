@@ -1,0 +1,16 @@
+{
+  "fecha": "2026-11-21T15:32:25.000Z",
+  "secuencia": 1,
+  "key_id": "solo-test-2026-11",
+  "nivel": "solo-test",
+  "modo": "migracion-payload-v1",
+  "conteos": {
+    "institucional": 45,
+    "rangos_institucionales": 0,
+    "prefijos": 2,
+    "comunitarios": 0
+  },
+  "sha256_payload": "96ed403f7c58407d8af885e1712b7975669246cd5214d98a096233ce41d0f2f4",
+  "sha256_envelope": "8364fd00923a59abdfb69cc19974b9681e2556e9dfb9fd568ab2fdaf10107720",
+  "notas": "Lista firmada con la clave de test (uso de mantenedor). Los numeros jamas aparecen aqui; solo conteos y hashes."
+}
