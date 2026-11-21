@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Fagx blocklist payload (v0.1)",
+  "description": "Canonical payload carried inside payload_b64. v0.1 contains institucional + prefijos only; community numbers belong to the v0.2 track.",
+  "type": "object",
+  "required": ["schema_version", "secuencia", "generado_en", "institucional", "prefijos"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "secuencia": { "type": "integer", "minimum": 1 },
+    "generado_en": { "type": "integer", "minimum": 0, "description": "Unix epoch seconds (UTC)." },
+    "institucional": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^600[0-9]{6}$" }
+    },
+    "prefijos": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "enum": ["600", "809"] }
+    }
+  }
+}

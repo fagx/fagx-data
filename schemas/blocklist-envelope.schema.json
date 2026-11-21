@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Fagx blocklist envelope",
+  "description": "Signed envelope published as blocklist.json (docs/sobre-firmado.md).",
+  "type": "object",
+  "required": ["format", "format_version", "alg", "key_id", "payload_b64", "signature_b64"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": "fagx-blocklist" },
+    "format_version": { "const": 1 },
+    "alg": { "const": "ES256" },
+    "key_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,63}$" },
+    "payload_b64": { "type": "string", "pattern": "^[A-Za-z0-9+/]+={0,2}$" },
+    "signature_b64": { "type": "string", "pattern": "^[A-Za-z0-9+/]+={0,2}$" }
+  }
+}
