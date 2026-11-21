@@ -1,7 +1,703 @@
 {
-  "schema_version": 1,
-  "updated_at": "2026-11-21",
-  "criterio": "Pendiente: la lista semilla la cura SEC-01 (Ola 0) desde fuentes publicas, con criterio de inclusion documentado y fuente verificada por entrada. Este archivo esta vacio a proposito en Ola 0 (BE-01).",
-  "fuente_indice": [],
-  "entries": []
+  "formato": "fagx-institutional-allowlist/1",
+  "pais": "CL",
+  "criterio_version": 2,
+  "criterio": "docs/institutional-allowlist-criteria.md",
+  "actualizado_en": "2026-11-21T14:19:00Z",
+  "curado_por": "Security & Privacy (FAG-10, SEC-01)",
+  "nota_criterio_v2": "criterio_version 2 = semantica revisada (2026-11-21, decision de la mesa en la revision SEC-01): la exclusion institucional queda configurable por el usuario (activa por defecto, desactivable en ajustes). Reglas de curacion y contenido sin cambios. Ver docs/institutional-allowlist-criteria.md §1.",
+  "nota_formato": "numero = forma nacional canonica, solo digitos, 10 digitos (600 + 7). numero_e164 = '56' + numero, para consumidores que normalizan a E.164 sin '+'. numero_display = tal como lo publica la institucion.",
+  "entradas": [
+    {
+      "institucion": "Banco de Chile",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 637 3737",
+      "numero": "6006373737",
+      "numero_e164": "566006373737",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://sitiospublicos.bancochile.cl/personas/centro-de-ayuda/detalle/si-tengo-algun-problema-a-que-telefono-debo-llamar",
+        "secundaria": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Fonobank Banca Personas; desde celulares +56 2 2637 3737; Banca Empresas 600 637 3838."
+    },
+    {
+      "institucion": "Banco Edwards (marca de Banco de Chile)",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 231 9999",
+      "numero": "6002319999",
+      "numero_e164": "566002319999",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://sitiospublicos.bancochile.cl/personas/centro-de-ayuda/detalle/si-tengo-algun-problema-a-que-telefono-debo-llamar",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Linea propia de la marca Banco Edwards."
+    },
+    {
+      "institucion": "BancoEstado",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 200 7000",
+      "numero": "6002007000",
+      "numero_e164": "566002007000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/home/centro-de-ayuda/otros-servicios/-que-hago-si-al-hacer-un-retiro-de-dinero-desde-un-cajero-automa.html",
+        "secundaria": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Servicio al Cliente; bloqueo de tarjetas 800 80 2020; desde el extranjero +56 2 2670 4819."
+    },
+    {
+      "institucion": "Banco Santander Chile",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 320 3000",
+      "numero": "6003203000",
+      "numero_e164": "566003203000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://banco.santander.cl/servicio-al-cliente",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Servicio al Cliente (VOX), 24/7; desde celulares +56 2 2320 3000."
+    },
+    {
+      "institucion": "Bci",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 692 8000",
+      "numero": "6006928000",
+      "numero_e164": "566006928000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.bci.cl/corporativo/servicio-al-cliente/personas",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Banca telefonica; emergencias 600 692 9000; fraude bancario 1212."
+    },
+    {
+      "institucion": "Banco Scotiabank",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 6 700 500",
+      "numero": "6006700500",
+      "numero_e164": "566006700500",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://scotiabankchile.cl/Asistencia-al-Cliente/asistencia",
+        "secundaria": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Consultas y Servicio a Clientes; Centro de Experiencia 600 600 1100."
+    },
+    {
+      "institucion": "Banco Itaú Chile",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 686 0888",
+      "numero": "6006860888",
+      "numero_e164": "566006860888",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://banco.itau.cl/wps/wcm/connect/es_ContentsBIC/BIC_Public/Home/contacto",
+        "secundaria": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Itau Phone; desde moviles *4828; desde el extranjero +56 2 2686 0888."
+    },
+    {
+      "institucion": "Banco Falabella",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 390 6200",
+      "numero": "6003906200",
+      "numero_e164": "566003906200",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://bancofalabella.cl/BancoFalabellaChile/banca-telefonica.html",
+        "secundaria": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Banca telefonica desde fijo; desde celulares 2 2390 6200."
+    },
+    {
+      "institucion": "CMR Falabella (tarjeta del grupo Falabella)",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 390 6000",
+      "numero": "6003906000",
+      "numero_e164": "566003906000",
+      "fuente": {
+        "tipo": "regulador",
+        "url": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "secundaria": "https://www.cmr.cl/ayuda-y-contacto",
+        "verificado_en": "2026-11-21",
+        "metodo": "fetch-directo"
+      },
+      "notas": "Tarjeta CMR; linea distinta de la del banco."
+    },
+    {
+      "institucion": "Banco BICE",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 400 2400",
+      "numero": "6004002400",
+      "numero_e164": "566004002400",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://banco.bice.cl/personas/servicio-al-cliente",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Personas; Empresas 600 400 1010; Inversiones 600 400 4000. Tras la integracion BICE-Security atiende a clientes de ambas marcas."
+    },
+    {
+      "institucion": "Banco Ripley",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 02 02",
+      "numero": "6006000202",
+      "numero_e164": "566006000202",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://bancoripley.cl/web/guest/preguntas-frecuentes",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Servicio al Cliente; emergencias 800 20 32 20 / 2 2768 9200."
+    },
+    {
+      "institucion": "Banco Internacional",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 329 2024",
+      "numero": "6003292024",
+      "numero_e164": "566003292024",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.internacional.cl/",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Banca Personas; Banca Empresas 600 363 5000 (tambien listada por la CMF)."
+    },
+    {
+      "institucion": "Banco Consorcio / Seguros Consorcio",
+      "categoria": "banco",
+      "rol": "atencion-clientes",
+      "numero_display": "600 221 3000",
+      "numero": "6002213000",
+      "numero_e164": "566002213000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://contenido-cert.cdn.digital.consorcio.cl/otros-documentos-liferay/cnslv/documentos/ficha_de_producto_-_credito_hipotecario.pdf",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "SAC unificado de Banco y Seguros Consorcio (anunciado por la institucion); numero de call center/emergencias 600 221 2000 en entrada aparte."
+    },
+    {
+      "institucion": "Banco Consorcio (call center / emergencias)",
+      "categoria": "banco",
+      "rol": "emergencias",
+      "numero_display": "600 221 2000",
+      "numero": "6002212000",
+      "numero_e164": "566002212000",
+      "fuente": {
+        "tipo": "regulador",
+        "url": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "secundaria": "https://bancoconsorcio.cl/politica-de-privacidad",
+        "verificado_en": "2026-11-21",
+        "metodo": "fetch-directo"
+      },
+      "notas": "Call center publicado en la politica de privacidad del banco y en el listado de emergencias de la CMF; desde celulares +56 2 2661 2711."
+    },
+    {
+      "institucion": "Coopeuch",
+      "categoria": "cooperativa",
+      "rol": "atencion-clientes",
+      "numero_display": "600 200 1200",
+      "numero": "6002001200",
+      "numero_e164": "566002001200",
+      "fuente": {
+        "tipo": "regulador",
+        "url": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "secundaria": "https://www.coopeuch.cl/emergencias",
+        "verificado_en": "2026-11-21",
+        "metodo": "fetch-directo"
+      },
+      "notas": "Cooperativa de ahorro y credito; la mayor del pais."
+    },
+    {
+      "institucion": "MAPFRE Chile",
+      "categoria": "aseguradora",
+      "rol": "atencion-clientes",
+      "numero_display": "600 700 4000",
+      "numero": "6007004000",
+      "numero_e164": "566007004000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.mapfre.cl/contacto/",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contact Center / Servicio de Atencion al Asegurado; desde celulares 2 2694 7566."
+    },
+    {
+      "institucion": "Chilena Consolidada (Grupo Zurich)",
+      "categoria": "aseguradora",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 9090",
+      "numero": "6006009090",
+      "numero_e164": "566006009090",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://chilena.cl/Chilena/contacto.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Plataforma de atencion al cliente de Chilena Consolidada Seguros de Vida y Seguros Generales."
+    },
+    {
+      "institucion": "Seguros SURA (ex RSA Chile)",
+      "categoria": "aseguradora",
+      "rol": "atencion-clientes",
+      "numero_display": "600 411 1000",
+      "numero": "6004111000",
+      "numero_e164": "566004111000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://seguros.sura.cl/contacto",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Fono Seguros SURA; desde celulares *7000."
+    },
+    {
+      "institucion": "MetLife Chile",
+      "categoria": "aseguradora",
+      "rol": "atencion-clientes",
+      "numero_display": "600 390 3000",
+      "numero": "6003903000",
+      "numero_e164": "566003903000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://w3.metlife.cl/contactanos/",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contact Center; desde celulares +56 2 2826 4790."
+    },
+    {
+      "institucion": "HDI Seguros (ex Liberty Seguros Chile)",
+      "categoria": "aseguradora",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 6010",
+      "numero": "6006006010",
+      "numero_e164": "566006006010",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://hdi.cl/centro-de-ayuda",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Centro de ayuda HDI (asistencia vehicular y siniestros, 24/7); la marca Liberty Chile opera hoy bajo HDI."
+    },
+    {
+      "institucion": "Seguros Cencosud",
+      "categoria": "aseguradora",
+      "rol": "atencion-clientes",
+      "numero_display": "600 500 5000",
+      "numero": "6005005000",
+      "numero_e164": "566005005000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.seguroscencosud.cl/html/?name=contacto",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Opcion 1 consultas de seguros."
+    },
+    {
+      "institucion": "Isapre Banmedica",
+      "categoria": "salud",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 3600",
+      "numero": "6006003600",
+      "numero_e164": "566006003600",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.banmedica.cl/",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contact Center; tambien Mesa de Ayuda Internet (opcion 2)."
+    },
+    {
+      "institucion": "Isapre Cruz Blanca",
+      "categoria": "salud",
+      "rol": "atencion-clientes",
+      "numero_display": "600 818 0000",
+      "numero": "6008180000",
+      "numero_e164": "566008180000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.cruzblanca.cl/",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Fono CruzBlanca."
+    },
+    {
+      "institucion": "Isapre Consalud",
+      "categoria": "salud",
+      "rol": "atencion-clientes",
+      "numero_display": "600 500 9000",
+      "numero": "6005009000",
+      "numero_e164": "566005009000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://consalud.cl/canales-de-atencion",
+        "secundaria": "https://www.superdesalud.gob.cl/registro/isapres",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contact Center y urgencias medicas 24 horas."
+    },
+    {
+      "institucion": "Isapre Vida Tres",
+      "categoria": "salud",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 3535",
+      "numero": "6006003535",
+      "numero_e164": "566006003535",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.vidatres.cl/contacto-sac/",
+        "secundaria": "https://www.superdesalud.gob.cl/registro/isapres",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Fono Ayuda; alternativa fija 2 2540 3600."
+    },
+    {
+      "institucion": "Isapre Nueva Masvida",
+      "categoria": "salud",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 0262",
+      "numero": "6006000262",
+      "numero_e164": "566006000262",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://nuevamasvida.cl/canales-de-atencion",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contact Center (el sitio publica el enlace tel:600600262); alternativa regional 41 220 7662."
+    },
+    {
+      "institucion": "Fonasa",
+      "categoria": "salud",
+      "rol": "atencion-clientes",
+      "numero_display": "600 360 3000",
+      "numero": "6003603000",
+      "numero_e164": "566003603000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.fonasa.gob.cl/sucursales/",
+        "secundaria": "https://chileatiende.gob.cl/fichas/9795-consultas-reclamos-y-sugerencias-a-fonasa-oirs",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Call center unico a nivel nacional (organismo publico)."
+    },
+    {
+      "institucion": "Salud Responde (Ministerio de Salud)",
+      "categoria": "salud",
+      "rol": "atencion-clientes",
+      "numero_display": "600 360 7777",
+      "numero": "6003607777",
+      "numero_e164": "566003607777",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://saludresponde.minsal.cl/",
+        "verificado_en": "2026-11-21",
+        "metodo": "fetch-directo"
+      },
+      "notas": "Departamento de Asistencia Remota en Salud del Minsal; tambien atiende Fonasa."
+    },
+    {
+      "institucion": "AFP Provida",
+      "categoria": "afp",
+      "rol": "atencion-clientes",
+      "numero_display": "600 201 0150",
+      "numero": "6002010150",
+      "numero_e164": "566002010150",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.provida.cl/ayuda/canales-de-atencion-afp/",
+        "secundaria": "https://www.spensiones.gob.cl/portal/institucional/594/w3-propertyvalue-9981.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contact Center; desde el extranjero +56 2 2720 6820."
+    },
+    {
+      "institucion": "AFP Habitat",
+      "categoria": "afp",
+      "rol": "atencion-clientes",
+      "numero_display": "600 220 2000",
+      "numero": "6002202000",
+      "numero_e164": "566002202000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.afphabitat.cl/nuestros-canales-de-atencion/contact-center-3/",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contact Center desde fijo y celular."
+    },
+    {
+      "institucion": "AFP Modelo",
+      "categoria": "afp",
+      "rol": "atencion-clientes",
+      "numero_display": "600 828 7200",
+      "numero": "6008287200",
+      "numero_e164": "566008287200",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://nueva.afpmodelo.cl/centro-contacto",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Central telefonica; desde celulares 2 2828 7200."
+    },
+    {
+      "institucion": "AFP Cuprum",
+      "categoria": "afp",
+      "rol": "atencion-clientes",
+      "numero_display": "600 228 7786",
+      "numero": "6002287786",
+      "numero_e164": "566002287786",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www6.cuprum.cl/tramites-en-linea",
+        "secundaria": "https://www.spensiones.gob.cl/portal/institucional/594/w3-propertyvalue-9977.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Centro de Asesoria Telefonica; desde el extranjero +56 2 2347 0210."
+    },
+    {
+      "institucion": "AFP Uno",
+      "categoria": "afp",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 1101",
+      "numero": "6006001101",
+      "numero_e164": "566006001101",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://uno.cl",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Central telefonica; alternativa fija 2 2720 5500 (listada por la SP)."
+    },
+    {
+      "institucion": "Entel",
+      "categoria": "telecomunicaciones",
+      "rol": "atencion-clientes",
+      "numero_display": "600 370 0105",
+      "numero": "6003700105",
+      "numero_e164": "566003700105",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://ayuda.entel.cl/hc/es-419/articles/4403722370579-Contactanos",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Atencion desde celulares o fijos de cualquier compania; clientes Entel marcan 105; cancelaciones 600 360 0103."
+    },
+    {
+      "institucion": "Movistar Chile",
+      "categoria": "telecomunicaciones",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 3000",
+      "numero": "6006003000",
+      "numero_e164": "566006003000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://atencionalcliente.movistar.cl/facturacion-y-pagos/como-solicitar-el-termino-de-mi-contrato-con-movistar",
+        "secundaria": "https://ww2.movistar.cl/tiendas/",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Atencion comercial desde fijos; clientes Movistar marcan 103; Empresas 600 600 3200."
+    },
+    {
+      "institucion": "VTR",
+      "categoria": "telecomunicaciones",
+      "rol": "atencion-clientes",
+      "numero_display": "600 800 9000",
+      "numero": "6008009000",
+      "numero_e164": "566008009000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://vtr.com/reclamos",
+        "secundaria": "https://centrodeayudaonline.vtr.com/sucursal_virtual/cuales-son-los-canales-de-contacto-vtr",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contacto clientes; desde celulares 2 2310 0200; Negocio 600 800 9009."
+    },
+    {
+      "institucion": "WOM",
+      "categoria": "telecomunicaciones",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 1106",
+      "numero": "6006001106",
+      "numero_e164": "566006001106",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://wom.cl/centro-de-ayuda/necesito-hablar-con-ejecutivo",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Linea WOM Fibra (hogar); la atencion movil usa 103 / 2 2337 7600, sin numero 600."
+    },
+    {
+      "institucion": "Enel Chile",
+      "categoria": "energia",
+      "rol": "atencion-clientes",
+      "numero_display": "600 696 0000",
+      "numero": "6006960000",
+      "numero_e164": "566006960000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://enel.cl/es/clientes/informacion-util/fonoservicio.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Fonoservicio de distribucion electrica; alternativa 800 800 696; electrodependientes 600 697 1500."
+    },
+    {
+      "institucion": "Falabella.com (retail)",
+      "categoria": "retail",
+      "rol": "atencion-clientes",
+      "numero_display": "600 329 2002",
+      "numero": "6003292002",
+      "numero_e164": "566003292002",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.falabella.com/falabella-cl/page/terminos-condiciones-uso-falabellacom",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Telefono de contacto del sitio comercial; lineas financieras del grupo en entradas aparte."
+    },
+    {
+      "institucion": "Ripley (tienda y marketplace)",
+      "categoria": "retail",
+      "rol": "atencion-clientes",
+      "numero_display": "600 230 02 22",
+      "numero": "6002300222",
+      "numero_e164": "566002300222",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://simple.ripley.cl/minisitios/estatico/servicio_cliente/preguntas_frecuentes.html",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Servicio al cliente del retail; lineas del banco en entrada aparte."
+    },
+    {
+      "institucion": "Ripley (postventa, linea de salida)",
+      "categoria": "retail",
+      "rol": "salida-postventa",
+      "numero_display": "600 329 2112",
+      "numero": "6003292112",
+      "numero_e164": "566003292112",
+      "fuente": {
+        "tipo": "centro-ayuda-oficial",
+        "url": "https://ripley.zendesk.com/hc/es-419/articles/30738332775703-Canales-de-Contacto-oficiales-de-Ripley",
+        "verificado_en": "2026-11-21",
+        "metodo": "fetch-directo"
+      },
+      "notas": "Solo realiza llamadas de salida y no recibe llamadas: la institucion la declara como numero oficial de postventa y pide explicitamente no bloquearla (actualizado 2026-02)."
+    },
+    {
+      "institucion": "Tarjeta Cencosud Scotiabank",
+      "categoria": "retail",
+      "rol": "atencion-clientes",
+      "numero_display": "600 450 5000",
+      "numero": "6004505000",
+      "numero_e164": "566004505000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://www.tarjetacencosud.cl/publico/comun/landing/servicio-cliente",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Tarjetas Paris/Jumbo; desde celulares 2 2604 5910."
+    },
+    {
+      "institucion": "Tarjeta Presto",
+      "categoria": "retail",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 5757",
+      "numero": "6006005757",
+      "numero_e164": "566006005757",
+      "fuente": {
+        "tipo": "regulador",
+        "url": "https://www.cmfchile.cl/educa/602/w3-article-27676.html",
+        "secundaria": "https://tarjetaliderbci.cl/contenidos/servicioalcliente",
+        "verificado_en": "2026-11-21",
+        "metodo": "fetch-directo"
+      },
+      "notas": "Tarjeta Presto (operada por Bci)."
+    },
+    {
+      "institucion": "LATAM Airlines Chile",
+      "categoria": "transporte",
+      "rol": "atencion-clientes",
+      "numero_display": "600 526 2000",
+      "numero": "6005262000",
+      "numero_e164": "566005262000",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://latamairlines.com/cl/es/centro-ayuda/preguntas/necesidades-especiales/oficinas-contact-center",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Contact Center Chile; el sitio bloquea fetch automatico (403), verificacion por contenido indexado del dominio oficial; cargo 600 300 5000 en pendientes."
+    },
+    {
+      "institucion": "JetSMART",
+      "categoria": "transporte",
+      "rol": "atencion-clientes",
+      "numero_display": "600 600 1311",
+      "numero": "6006001311",
+      "numero_e164": "566006001311",
+      "fuente": {
+        "tipo": "sitio-oficial",
+        "url": "https://jetsmart.com/cl/es/minisitios/mercadopublico",
+        "verificado_en": "2026-11-21",
+        "metodo": "contenido-indexado-del-dominio-oficial"
+      },
+      "notas": "Call center (soporte 24 h); contacto general via formulario oficial."
+    }
+  ]
 }
