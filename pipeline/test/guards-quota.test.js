@@ -61,10 +61,46 @@ test('quota budget: alerts when pending expired exceeds the threshold', () => {
 });
 
 test('payload semantic checks', () => {
-  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: [], prefijos: ['600', '809'] }).ok, true);
-  assert.equal(checkPayload({ schema_version: 2, secuencia: 1, generado_en: 0, institucional: [], prefijos: [] }).ok, false);
-  assert.equal(checkPayload({ schema_version: 1, secuencia: 0, generado_en: 0, institucional: [], prefijos: [] }).ok, false);
-  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: ['56912345678'], prefijos: [] }).ok, false);
-  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: [], prefijos: ['999'] }).ok, false);
-  assert.equal(listSize({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: ['600123456'], prefijos: ['600', '809'] }), 3);
+  const inst = (n) => ({ numeros: n, rangos: [] });
+  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: inst([]), prefijos: ['600', '809'] }).ok, true);
+  assert.equal(checkPayload({ schema_version: 2, secuencia: 1, generado_en: 0, institucional: inst([]), prefijos: [] }).ok, false);
+  assert.equal(checkPayload({ schema_version: 1, secuencia: 0, generado_en: 0, institucional: inst([]), prefijos: [] }).ok, false);
+  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: inst([]), prefijos: ['999'] }).ok, false);
+  // institucional entries: both forms, consistent
+  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: inst([{ numero: '6001234567', numero_e164: '566001234567' }]), prefijos: [] }).ok, true);
+  // movil instead of 600+7
+  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: inst([{ numero: '56912345678', numero_e164: '5656912345678' }]), prefijos: [] }).ok, false);
+  // e164 inconsistent with numero
+  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: inst([{ numero: '6001234567', numero_e164: '56912345678' }]), prefijos: [] }).ok, false);
+  // flat institutional array is the old shape: rejected
+  assert.equal(checkPayload({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: ['6001234567'], prefijos: [] }).ok, false);
+  // duplicated institutional numbers
+  assert.equal(
+    checkPayload({
+      schema_version: 1,
+      secuencia: 1,
+      generado_en: 0,
+      institucional: inst([
+        { numero: '6001234567', numero_e164: '566001234567' },
+        { numero: '6001234567', numero_e164: '566001234567' },
+      ]),
+      prefijos: [],
+    }).ok,
+    false,
+  );
+  // rangos no vacios no se publican en v0.1
+  assert.equal(
+    checkPayload({
+      schema_version: 1,
+      secuencia: 1,
+      generado_en: 0,
+      institucional: { numeros: [], rangos: [{ desde: '6001230000', hasta: '6001239999' }] },
+      prefijos: [],
+    }).ok,
+    false,
+  );
+  assert.equal(
+    listSize({ schema_version: 1, secuencia: 1, generado_en: 0, institucional: inst([{ numero: '6001234567', numero_e164: '566001234567' }]), prefijos: ['600', '809'] }),
+    3,
+  );
 });

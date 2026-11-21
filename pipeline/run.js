@@ -4,7 +4,13 @@
  *
  *   node run.js ci            — static validation (schemas, envelope, guards, quota, unit tests, secret scan)
  *   node run.js dry-run       — full pipeline against the Firestore emulator with fixtures (requires emulator)
- *   node run.js publish-empty — one-shot local publish of an empty signed list (maintainer use)
+ *   node run.js publish       — build and sign the list, publish blocklist.json + builds/ log
+ *
+ * publish defaults to the beta key (env BLOCKLIST_SIGNING_KEY_BETA, GitHub
+ * Actions secret — never committed). `--key-solo-test` signs with the
+ * committed disposable test key (maintainer/test use only). `--secuencia N`
+ * overrides the sequence number (default: previous published + 1); any
+ * override is justified in the build log.
  *
  * The dry-run is deterministic: fixture `now`/`cursor` are fixed and the
  * canonical payload is compared byte-to-byte against
@@ -39,14 +45,30 @@ function fail(msg) {
   process.exit(1);
 }
 
-function readPublished() {
-  if (!fs.existsSync(PUBLISHED_BLOCKLIST)) return { envelope: null, payload: null };
+function readPublished({ legacyPayloadOk = true } = {}) {
+  if (!fs.existsSync(PUBLISHED_BLOCKLIST)) return { envelope: null, payload: null, legacy: false };
   const envelope = JSON.parse(fs.readFileSync(PUBLISHED_BLOCKLIST, 'utf8'));
   const ver = verifyEnvelope(envelope, loadKeyring(KEYS_DIR));
   if (!ver.ok) fail(`published blocklist.json fails verification: ${ver.reason}`);
   const chk = checkPayload(ver.payload);
-  if (!chk.ok) fail(`published payload invalid: ${chk.reason}`);
-  return { envelope, payload: ver.payload };
+  if (!chk.ok) {
+    // Ola 0 scaffolding (disposable solo-test key) may predate the payload
+    // v1 shape; strict semantics apply from the beta level onward.
+    if (legacyPayloadOk && typeof ver.key_id === 'string' && ver.key_id.startsWith('solo-test')) {
+      return { envelope, payload: ver.payload, legacy: true };
+    }
+    fail(`published payload invalid: ${chk.reason}`);
+  }
+  return { envelope, payload: ver.payload, legacy: false };
+}
+
+/** Blocked-entry count of a published payload, across the legacy (flat) and v1 (nested) shapes. */
+function publishedCount(p) {
+  if (!p) return 0;
+  if (Array.isArray(p.institucional)) return p.institucional.length + p.prefijos.length;
+  const size = listSize(p);
+  if (size === null) fail('published payload is not countable');
+  return size;
 }
 
 function assert(cond, msg) {
@@ -67,14 +89,16 @@ function cmdCi() {
   }
 
   // 2. published list integrity (solo-test keyring) and shrink guard vs the
-  //    candidate that the current data/ file would produce.
-  if (published.payload) {
+  //    candidate that the current data/ file would produce. A legacy
+  //    scaffolding payload (pre-v1 shape, solo-test key) skips the guard:
+  //    there is no meaningful ratio to protect during the migration.
+  if (published.payload && !published.legacy) {
     const candidate = buildPayload({
       institutional: loadInstitutional(),
       secuencia: published.payload.secuencia + 1,
       generadoEn: published.payload.generado_en,
     });
-    const guard = shrinkGuard(listSize(published.payload), listSize(candidate));
+    const guard = shrinkGuard(publishedCount(published.payload), listSize(candidate));
     if (!guard.ok) problems.push(`shrink guard: candidate ratio ${guard.ratio} (${guard.reason})`);
   }
 
@@ -163,7 +187,7 @@ async function cmdDryRun() {
   const key = { privateKeyPem: fs.readFileSync(path.join(KEYS_DIR, 'solo-test', 'private.pem'), 'utf8'), keyId: 'solo-test-2026-11', publicPem: fs.readFileSync(path.join(KEYS_DIR, 'solo-test', 'public.pem'), 'utf8') };
   const envelope = publish(payload, key, {
     outPath: CANDIDATE_OUT,
-    previousCount: published.payload ? listSize(published.payload) : 0,
+    previousCount: publishedCount(published.payload),
   });
   const ver = verifyEnvelope(JSON.parse(fs.readFileSync(CANDIDATE_OUT, 'utf8')), loadKeyring(KEYS_DIR));
   assert(ver.ok, `round-trip verification failed: ${ver.reason}`);
@@ -192,49 +216,93 @@ async function cmdDryRun() {
   console.log(JSON.stringify(summary, null, 2));
 }
 
-// ------------------------------------------------------ publish-empty
+// ------------------------------------------------------ publish
 
-function cmdPublishEmpty() {
+function argValue(argv, name, fallback) {
+  const i = argv.indexOf(name);
+  if (i === -1 || i + 1 >= argv.length) return fallback;
+  return argv[i + 1];
+}
+
+function cmdPublish(argv) {
+  const useTestKey = argv.includes('--key-solo-test');
+  const secuenciaOverride = argValue(argv, '--secuencia', null);
+  const modo = argValue(argv, '--modo', useTestKey ? 'mantenedor-test' : 'v1');
+
   const published = readPublished();
-  const secuencia = published.payload ? published.payload.secuencia + 1 : 1;
+  const isLegacy = published.legacy;
+
+  // signing key: beta (Actions secret) or the committed disposable test key
+  let key;
+  if (useTestKey) {
+    const dir = path.join(KEYS_DIR, 'solo-test');
+    key = {
+      privateKeyPem: fs.readFileSync(path.join(dir, 'private.pem'), 'utf8'),
+      keyId: 'solo-test-2026-11',
+      publicPem: fs.readFileSync(path.join(dir, 'public.pem'), 'utf8'),
+    };
+  } else {
+    const privatePem = process.env.BLOCKLIST_SIGNING_KEY_BETA;
+    if (!privatePem || !privatePem.includes('PRIVATE KEY')) {
+      fail('BLOCKLIST_SIGNING_KEY_BETA is not set (the beta private key lives only as a GitHub Actions secret)');
+    }
+    key = {
+      privateKeyPem,
+      keyId: 'beta-2026-11',
+      publicPem: fs.readFileSync(path.join(KEYS_DIR, 'beta', 'public.pem'), 'utf8'),
+    };
+  }
+
   const generadoEn = Math.floor(Date.now() / 1000);
+  const prevSecuencia = published.payload ? published.payload.secuencia : 0;
+  const secuencia = secuenciaOverride !== null ? Number(secuenciaOverride) : prevSecuencia + 1;
+  assert(Number.isInteger(secuencia) && secuencia >= 1, 'secuencia override must be a positive integer');
+  if (secuenciaOverride !== null && secuencia !== prevSecuencia + 1) {
+    console.warn(`note: secuencia override ${secuencia} (prev published ${prevSecuencia}); justified in the build log`);
+  }
   const payload = buildPayload({ institutional: loadInstitutional(), secuencia, generadoEn });
 
-  const keysDir = path.join(KEYS_DIR, 'solo-test');
-  const key = {
-    privateKeyPem: fs.readFileSync(path.join(keysDir, 'private.pem'), 'utf8'),
-    keyId: 'solo-test-2026-11',
-    publicPem: fs.readFileSync(path.join(keysDir, 'public.pem'), 'utf8'),
-  };
   const envelope = publish(payload, key, {
     outPath: PUBLISHED_BLOCKLIST,
-    previousCount: published.payload ? listSize(published.payload) : 0,
+    previousCount: publishedCount(published.payload),
   });
+
+  // re-read from disk: the published list must verify with the repo keyring
+  // (strict from now on: a non-legacy payload must satisfy the v1 semantics)
+  const reverified = readPublished({ legacyPayloadOk: false });
+  assert(reverified.payload && reverified.payload.secuencia === secuencia, 'published list failed re-verification');
 
   // builds/ bitacora: counts and hashes, never numbers
   const stamp = new Date(generadoEn * 1000).toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  const notas = useTestKey
+    ? 'Lista firmada con la clave de test (uso de mantenedor). Los numeros jamas aparecen aqui; solo conteos y hashes.'
+    : 'Lista real de v0.1: institucional (semilla SEC-01, criterio v2) + prefijos, firmada con la clave beta (secreto de Actions). Los numeros jamas aparecen aqui; solo conteos y hashes.';
   const buildLog = {
     fecha: new Date(generadoEn * 1000).toISOString(),
     secuencia,
-    key_id: 'solo-test-2026-11',
-    nivel: 'solo-test',
-    modo: process.env.PUBLISH_MODE || 'inicial-ola-0',
+    key_id: key.keyId,
+    nivel: useTestKey ? 'solo-test' : 'beta',
+    modo,
     conteos: {
-      institucional: payload.institucional.length,
+      institucional: payload.institucional.numeros.length,
+      rangos_institucionales: payload.institucional.rangos.length,
       prefijos: payload.prefijos.length,
       comunitarios: 0,
     },
     sha256_payload: crypto.createHash('sha256').update(Buffer.from(envelope.payload_b64, 'base64')).digest('hex'),
     sha256_envelope: crypto.createHash('sha256').update(JSON.stringify(envelope, null, 2) + '\n').digest('hex'),
-    notas: 'Lista vacia (solo prefijos 600/809) firmada con la clave de test. Los numeros jamas aparecen aqui; solo conteos y hashes.',
+    notas,
   };
   const buildPath = path.join(ROOT, 'builds', `${stamp}-seq-${secuencia}.json`);
   fs.mkdirSync(path.dirname(buildPath), { recursive: true });
   fs.writeFileSync(buildPath, JSON.stringify(buildLog, null, 2) + '\n');
 
-  console.log(`published ${path.relative(ROOT, PUBLISHED_BLOCKLIST)} (secuencia=${secuencia})`);
+  console.log(`published ${path.relative(ROOT, PUBLISHED_BLOCKLIST)}`);
   console.log(`build log ${path.relative(ROOT, buildPath)}`);
+  console.log(`secuencia=${secuencia}`);
+  console.log(`key_id=${key.keyId}`);
   console.log(`sha256_payload=${buildLog.sha256_payload}`);
+  console.log(`sha256_envelope=${buildLog.sha256_envelope}`);
 }
 
 // ------------------------------------------------------------ main
@@ -243,8 +311,8 @@ async function main() {
   const cmd = process.argv[2];
   if (cmd === 'ci') return cmdCi();
   if (cmd === 'dry-run') return cmdDryRun();
-  if (cmd === 'publish-empty') return cmdPublishEmpty();
-  console.error('usage: node run.js <ci|dry-run|publish-empty>');
+  if (cmd === 'publish') return cmdPublish(process.argv.slice(3));
+  console.error('usage: node run.js <ci|dry-run|publish>');
   process.exit(2);
 }
 

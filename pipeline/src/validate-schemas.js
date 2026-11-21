@@ -19,6 +19,8 @@ function loadSchema(name) {
 function makeAjv() {
   const ajv = new Ajv({ allErrors: true });
   ajv.addFormat('date', /^\d{4}-\d{2}-\d{2}$/);
+  ajv.addFormat('date-time', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/);
+  ajv.addFormat('uri', /^[a-z][a-z0-9+.-]*:\/\/[^\s]+$/i);
   return ajv;
 }
 

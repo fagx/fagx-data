@@ -78,26 +78,43 @@ async function aggregate(store, reports) {
 
 // --- build payload ---
 
-/** Load the institutional allowlist seed (data/institutional-allowlist.json). */
+/**
+ * Load the institutional allowlist seed (data/institutional-allowlist.json).
+ * Returns entries carrying both delivery forms (numero + numero_e164),
+ * as agreed with SEC-01/AND-02 (criterio §6, FAG-28).
+ */
 function loadInstitutional(path_ = ALLOWLIST_PATH) {
   const data = JSON.parse(fs.readFileSync(path_, 'utf8'));
-  const numbers = data.entries.map((e) => e.numero);
+  const entries = data.entradas.map((e) => ({
+    numero: e.numero,
+    numero_e164: e.numero_e164,
+  }));
+  const numbers = entries.map((e) => e.numero);
   if (new Set(numbers).size !== numbers.length) {
     throw new Error('institutional allowlist: duplicate numbers');
   }
-  return numbers;
+  for (const e of entries) {
+    if (e.numero_e164 !== '56' + e.numero) {
+      throw new Error(`institutional allowlist: numero_e164 mismatch for ${e.numero}`);
+    }
+  }
+  return entries;
 }
 
 /**
  * Build the candidate payload. `secuencia` is the previous published
- * secuencia + 1 (never lower: the app rejects rollback).
+ * secuencia + 1 (never lower: the app rejects rollback). Institutional
+ * entries carry both forms; `rangos` is always empty in v0.1.
  */
 function buildPayload({ institutional, secuencia, generadoEn }) {
   return {
     schema_version: 1,
     secuencia,
     generado_en: generadoEn,
-    institucional: [...institutional].sort(),
+    institucional: {
+      numeros: [...institutional].sort((a, b) => (a.numero < b.numero ? -1 : a.numero > b.numero ? 1 : 0)),
+      rangos: [],
+    },
     prefijos: [...PREFIJOS].sort(),
   };
 }

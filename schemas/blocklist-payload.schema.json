@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Fagx blocklist payload (v0.1)",
-  "description": "Canonical payload carried inside payload_b64. v0.1 contains institucional + prefijos only; community numbers belong to the v0.2 track.",
+  "description": "Canonical payload carried inside payload_b64. v0.1 contains institucional + prefijos only; community numbers belong to the v0.2 track. Institutional entries carry both delivery forms (numero, numero_e164) per criterio SEC-01 §6 / FAG-28.",
   "type": "object",
   "required": ["schema_version", "secuencia", "generado_en", "institucional", "prefijos"],
   "additionalProperties": false,
@@ -10,9 +10,30 @@
     "secuencia": { "type": "integer", "minimum": 1 },
     "generado_en": { "type": "integer", "minimum": 0, "description": "Unix epoch seconds (UTC)." },
     "institucional": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^600[0-9]{6}$" }
+      "type": "object",
+      "required": ["numeros", "rangos"],
+      "additionalProperties": false,
+      "properties": {
+        "numeros": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["numero", "numero_e164"],
+            "additionalProperties": false,
+            "properties": {
+              "numero": { "type": "string", "pattern": "^600[0-9]{7}$" },
+              "numero_e164": { "type": "string", "pattern": "^56600[0-9]{7}$" }
+            }
+          }
+        },
+        "rangos": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "object" },
+          "description": "Institutional permit ranges (Fase 0 shape). Always empty in v0.1."
+        }
+      }
     },
     "prefijos": {
       "type": "array",

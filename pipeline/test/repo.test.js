@@ -20,7 +20,7 @@ test('secret scan: token patterns fail when present (self-test on a temp string)
   assert.deepEqual(findings, [], `repo must stay clean: ${JSON.stringify(findings)}`);
 });
 
-test('published blocklist.json (if present) is a valid solo-test-signed envelope', () => {
+test('published blocklist.json (if present) is a valid envelope signed by a committed keyring key', () => {
   const file = path.join(ROOT, 'blocklist.json');
   if (!fs.existsSync(file)) return; // before first publication
   const { verifyEnvelope, loadKeyring } = require('../src/envelope');

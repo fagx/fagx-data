@@ -22,7 +22,10 @@ const PAYLOAD = {
   schema_version: 1,
   secuencia: 1,
   generado_en: 1795219200,
-  institucional: [],
+  institucional: {
+    numeros: [{ numero: '6001234567', numero_e164: '566001234567' }], // ficticio
+    rangos: [],
+  },
   prefijos: ['600', '809'],
 };
 
@@ -84,9 +87,23 @@ test('negative: signature made by a different key fails', () => {
   assert.equal(result.reason, 'E_BAD_SIGNATURE');
 });
 
-test('keyring exposes only public keys; solo-test is marked disposable', () => {
-  assert.equal(keyring.keys.length, 1);
-  assert.equal(keyring.keys[0].key_id, 'solo-test-2026-11');
-  assert.equal(keyring.keys[0].nivel, 'solo-test');
+test('keyring exposes only public keys; both committed levels are present', () => {
+  assert.equal(keyring.keys.length, 2);
+  const byId = Object.fromEntries(keyring.keys.map((k) => [k.key_id, k]));
+  assert.equal(byId['solo-test-2026-11'].nivel, 'solo-test');
+  assert.equal(byId['beta-2026-11'].nivel, 'beta');
   assert.equal(keyFromKeyring(keyring, 'solo-test-2026-11').publicPem.includes('BEGIN PUBLIC KEY'), true);
+  assert.equal(keyFromKeyring(keyring, 'beta-2026-11').publicPem.includes('BEGIN PUBLIC KEY'), true);
+});
+
+test('beta key: the private material is never committed (public half only)', () => {
+  const fs = require('node:fs');
+  const betaDir = path.join(KEYS, 'beta');
+  for (const file of fs.readdirSync(betaDir)) {
+    assert.equal(
+      file.includes('private'),
+      false,
+      `keys/beta must not contain private material: ${file}`,
+    );
+  }
 });
