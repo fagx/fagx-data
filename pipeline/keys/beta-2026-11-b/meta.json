@@ -1,0 +1,13 @@
+{
+  "key_id": "beta-2026-11-b",
+  "alg": "ES256",
+  "nivel": "beta",
+  "descripcion": "Clave beta de firma de listas internas (v0.1), generada en la rotación de FAG-32: el respaldo Q3 exigía dos copias cifradas y la clave anterior solo existía como secreto write-only de Actions (sin export posible), así que se rotó y la nueva nace con ceremonia Q3 completa. La parte privada vive EXCLUSIVAMENTE como secreto de GitHub Actions (BLOCKLIST_SIGNING_KEY_BETA) más las dos copias cifradas en custodia (Fernando + CTO, passphrase separada por custodio); nunca se commitea ni se registra en documentos o logs.",
+  "curva": "P-256",
+  "formato_firma": "ECDSA DER sobre los bytes ASCII de payload_b64 (compatible con JCA SHA256withECDSA / X509EncodedKeySpec)",
+  "creada": "2026-11-21",
+  "instalada_por": "BE-02 rotación (FAG-32)",
+  "reemplaza_a": "beta-2026-11",
+  "rotacion_anual": "2027-11 (la abre Security & Privacy un mes antes)",
+  "custodia_q3": "dos copias cifradas AES-256-CBC/PBKDF2, entregadas con registro en FAG-32; re-envoltura bajo passphrase propia de cada custodio en la entrega"
+}

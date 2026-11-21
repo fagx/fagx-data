@@ -14,7 +14,7 @@ Referencias: [Plan v0.1](https://github.com/fagx/fagx-data) · Fase 0 (elección
   "format": "fagx-blocklist",
   "format_version": 1,
   "alg": "ES256",
-  "key_id": "beta-2026-11",
+  "key_id": "beta-2026-11-b",
   "payload_b64": "…(base64)…",
   "signature_b64": "…(base64)…"
 }
@@ -82,10 +82,11 @@ Cualquier fallo en 1–5 descarta **completa** la lista: no hay apply parcial.
 | Nivel | Clave | Dónde vive | Estado |
 |---|---|---|---|
 | Fixtures de test | `solo-test-2026-11` | Commiteada en `pipeline/keys/solo-test/` (intencional, desechable) | Activa para fixtures y el scaffold de Ola 0 |
-| Beta (v0.1 interno) | `beta-2026-11` | Secreto de GitHub Actions `BLOCKLIST_SIGNING_KEY_BETA`; instalado por BE-02 el 2026-11-21 | **Instalada**: firma todas las listas de v0.1 (workflow `publish`) |
+| Beta (v0.1 interno) | `beta-2026-11-b` | Secreto de GitHub Actions `BLOCKLIST_SIGNING_KEY_BETA` (el `key_id` se resuelve del keyring); rotada el 2026-11-21 (FAG-32) con ceremonia Q3 desde el día uno: dos copias cifradas en custodia (Fernando + CTO) | **Instalada**: firma todas las listas de v0.1 (workflow `publish`) |
+| Beta retirada | `beta-2026-11` | Mitad pública commiteada en `pipeline/keys/beta/` solo para verificar históricamente la lista seq 1; la privada ya no tiene copias | **Retirada** el 2026-11-21 por la rotación Q3 |
 | Producción | clave real | No existe aún; ceremonia antes del primer release público (P-09, Q3) | Pendiente de custodia (Q3) |
 
-La verificación del repo (`validate.yml`) usa el keyring de `pipeline/keys/` (las mitades públicas de ambos niveles están commiteadas); la lista firmada con la clave beta se valida en el pipeline con el secreto de Actions. El respaldo en custodia de la clave beta (Q3: dos copias cifradas) sigue pendiente de ceremonia; si la clave se pierde o compromete, aplica el procedimiento de rotación de este documento.
+La verificación del repo (`validate.yml`) usa el keyring de `pipeline/keys/` (las mitades públicas de ambos niveles están commiteadas); la lista firmada con la clave beta se valida en el pipeline con el secreto de Actions. La clave beta está respaldada desde el 2026-11-21 con el esquema Q3 (dos copias cifradas con custodia separada, registro en FAG-32); si la clave se pierde o compromete, aplica el procedimiento de rotación de este documento.
 
 ## Distribución y caché
 

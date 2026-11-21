@@ -2,10 +2,12 @@
   "key_id": "beta-2026-11",
   "alg": "ES256",
   "nivel": "beta",
-  "descripcion": "Clave beta de firma de listas internas (v0.1). La parte privada vive EXCLUSIVAMENTE como secreto de GitHub Actions (BLOCKLIST_SIGNING_KEY_BETA); nunca se commitea ni se registra en documentos o logs. Respaldo en custodia (Q3: dos copias cifradas, Fernando + CTO) pendiente de ceremonia; si se pierde o compromete, aplicar el procedimiento de rotacion/compromiso de docs/rotacion-de-claves.md.",
+  "descripcion": "Clave beta de firma de listas internas (v0.1), RETIRADA el 2026-11-21 por rotación (FAG-32): sin export posible desde el secreto write-only de Actions no hubo cómo confeccionar el respaldo Q3, así que se rotó a beta-2026-11-b. Esta mitad pública queda commiteada solo para verificar históricamente la lista seq 1; la privada ya no tiene copias (secreto de Actions sobrescrito, material local destruido).",
   "curva": "P-256",
   "formato_firma": "ECDSA DER sobre los bytes ASCII de payload_b64 (compatible con JCA SHA256withECDSA / X509EncodedKeySpec)",
   "creada": "2026-11-21",
   "instalada_por": "BE-02 (FAG-15)",
-  "uso_previsto": "todas las listas firmadas de v0.1 (interno)"
+  "uso_previsto": "todas las listas firmadas de v0.1 (interno)",
+  "retirada": "2026-11-21",
+  "reemplazada_por": "beta-2026-11-b"
 }

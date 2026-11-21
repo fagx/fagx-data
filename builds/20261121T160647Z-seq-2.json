@@ -1,0 +1,16 @@
+{
+  "fecha": "2026-11-21T16:06:47.000Z",
+  "secuencia": 2,
+  "key_id": "beta-2026-11-b",
+  "nivel": "beta",
+  "modo": "ceremonia-rotacion",
+  "conteos": {
+    "institucional": 0,
+    "rangos_institucionales": 0,
+    "prefijos": 2,
+    "comunitarios": 0
+  },
+  "sha256_payload": "0384df166cc2749a7a11ff598782fd9dee53c5cfa733b6f59a77c31ff69505a3",
+  "sha256_envelope": "447132fc73bf7b851e90c48d5f91cc699e54a581263ce33791eed5595058c518",
+  "notas": "Lista vacia de transicion (ceremonia de rotacion Q3): solo prefijos 600/809, firmada con la clave beta nueva para anclar la confianza antes de volver al contenido real (Fase 0 / P-09). Los numeros jamas aparecen aqui; solo conteos y hashes."
+}

@@ -87,13 +87,15 @@ test('negative: signature made by a different key fails', () => {
   assert.equal(result.reason, 'E_BAD_SIGNATURE');
 });
 
-test('keyring exposes only public keys; both committed levels are present', () => {
-  assert.equal(keyring.keys.length, 2);
+test('keyring exposes only public keys; every committed level is present', () => {
   const byId = Object.fromEntries(keyring.keys.map((k) => [k.key_id, k]));
   assert.equal(byId['solo-test-2026-11'].nivel, 'solo-test');
-  assert.equal(byId['beta-2026-11'].nivel, 'beta');
+  assert.equal(byId['beta-2026-11'].nivel, 'beta'); // retired public half stays committed for history (FAG-32)
+  assert.equal(byId['beta-2026-11-b'].nivel, 'beta'); // current signing key (FAG-32 rotation)
   assert.equal(keyFromKeyring(keyring, 'solo-test-2026-11').publicPem.includes('BEGIN PUBLIC KEY'), true);
   assert.equal(keyFromKeyring(keyring, 'beta-2026-11').publicPem.includes('BEGIN PUBLIC KEY'), true);
+  assert.equal(keyFromKeyring(keyring, 'beta-2026-11-b').publicPem.includes('BEGIN PUBLIC KEY'), true);
+  assert.equal(keyring.keys.length, 3);
 });
 
 test('beta key: the private material is never committed (public half only)', () => {

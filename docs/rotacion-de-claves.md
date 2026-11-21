@@ -13,8 +13,14 @@ Referencia: P-09 (custodia, pendiente de Q3) · [Formato del sobre](sobre-firmad
 | Nivel | Dónde vive | Rotación |
 |---|---|---|
 | `solo-test` | Commiteada, marcada desechable. Firmar fixtures con ella es intencional. | Rota cuando se quiera; se elimina cuando deja de usarse en fixtures |
-| Beta (v0.1 interno) | Secreto de GitHub Actions (`BLOCKLIST_SIGNING_KEY_BETA`); instalado por BE-02 el 2026-11-21 (`key_id` `beta-2026-11`) | Procedimiento de abajo |
+| Beta (v0.1 interno) | Secreto de GitHub Actions (`BLOCKLIST_SIGNING_KEY_BETA`); el `key_id` se resuelve del keyring por coincidencia de la mitad pública (sin cambios de código al rotar) | Procedimiento de abajo · **rotada el 2026-11-21: `beta-2026-11` → `beta-2026-11-b`** |
 | Producción | No existe aún. Ceremonia antes del primer release público; custodia doble según P-09 (dos copias cifradas, custodia separada; pendiente nombre del custodio, Q3) | Procedimiento de abajo, con ceremonia |
+
+### Rotaciones ejecutadas
+
+| Fecha | Clave retirada | Clave nueva | Motivo | Registro |
+|---|---|---|---|---|
+| 2026-11-21 | `beta-2026-11` (secreto de Actions sobrescrito; sin copias restantes) | `beta-2026-11-b` | El respaldo Q3 (dos copias cifradas) era imposible con la clave anterior: el secreto de Actions es write-only, así que FAG-32 aplicó la rotación y la clave nueva nació con ceremonia Q3 completa (dos copias cifradas, Fernando + CTO, passphrase separada por custodio) | `builds/` (modo `ceremonia-rotacion` + lista vacía de transición seq 2) · FAG-32 |
 
 ## Rotación planeada (sin compromiso)
 
@@ -23,6 +29,8 @@ Referencia: P-09 (custodia, pendiente de Q3) · [Formato del sobre](sobre-firmad
 3. Pasar a firmar las listas con la clave nueva.
 4. Cuando la telemetría/constatación interna indique que ya no quedan instalaciones firmando solo con la clave vieja, eliminarla del keyring y del secreto de Actions.
 5. Registrar la rotación en `builds/` (modo `rotacion`, solo hashes y `key_id`, nunca números).
+
+El paso 3 es mecánico: `publish` resuelve el `key_id` del keyring por coincidencia de la mitad pública del secreto (no hay `key_id` fijo en el código). En una rotación sin flota instalada (beta, v0.1) los pasos 2–4 se colapsan: la lista vacía de transición (`node run.js publish --lista-vacia`) firma con la clave nueva y el contenido real vuelve en la publicación siguiente.
 
 ## Procedimiento de compromiso
 

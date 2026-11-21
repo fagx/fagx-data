@@ -1,0 +1,31 @@
+{
+  "fecha": "2026-11-21T16:06:06Z",
+  "modo": "ceremonia-rotacion",
+  "tipo": "rotacion de clave beta con ceremonia Q3 desde el dia uno (FAG-32)",
+  "clave_retirada": {
+    "key_id": "beta-2026-11",
+    "motivo_retiro": "respaldo Q3 (dos copias cifradas) imposible: el secreto de Actions es write-only y era la unica copia existente; el material local fue destruido en su instalacion (FAG-15)",
+    "disposicion_final": "secreto de Actions BLOCKLIST_SIGNING_KEY_BETA sobrescrito con la clave nueva el 2026-11-21T16:03Z; mitad publica quedada en pipeline/keys/beta/ solo para verificacion historica de la lista seq 1; sin copias de la privada (por diseno)"
+  },
+  "clave_nueva": {
+    "key_id": "beta-2026-11-b",
+    "alg": "ES256",
+    "curva": "P-256",
+    "instalada_en": "secreto de GitHub Actions BLOCKLIST_SIGNING_KEY_BETA (2026-11-21T16:03Z, write-only)",
+    "sha256_public_pem": "98f2ec68f73637e98b2991a8e1ee00b929f011052fdb8c27da26a756d6146fe1",
+    "sha256_material_privado_instalado": "fcd1d7391b8e8f3a269427dd769f347049a369a6bf62c3f2a1af6d8d85218ec0",
+    "rotacion_anual": "2027-11 (la abre Security & Privacy un mes antes)"
+  },
+  "custodia_q3": {
+    "esquema": "dos copias cifradas, custodia separada (ceremonia P-09/Q3, doc 03 de FAG-24)",
+    "cifrado": "openssl enc -aes-256-cbc -pbkdf2 -iter 600000 (passphrase distinta por custodio; passphrase por canal separado del archivo, nunca en repos, docs ni logs)",
+    "copias": [
+      { "custodio": "Fernando", "archivo": "beta-2026-11-b.custodia-fernando.enc", "sha256": "9f328fcb3c2db64c45aaa21e1ca1ae0d260d48d63d6290438977e989aa6b48fe", "bytes": 272 },
+      { "custodio": "CTO", "archivo": "beta-2026-11-b.custodia-cto.enc", "sha256": "6437a60a7b6a246ef83229035a714389c0daa189b8d279f213c5a711aa9e552b", "bytes": 272 }
+    ],
+    "entrega": "agenda en FAG-32 con registro de entrega; en la entrega cada custodio verifica el descifrado (round-trip del pipeline) y re-envuelve su copia bajo passphrase propia antes de guardarla en su medio durable; los sobres de transicion se destruyen tras la re-envoltura",
+    "confirmacion_pendiente": "Fernando + CTO"
+  },
+  "participantes": ["BE-02 (Backend/Cloud, agente ejecutor)", "custodios pendientes de confirmacion: Fernando, CTO"],
+  "notas": "Los numeros jamas aparecen aqui: solo key_ids, conteos y hashes. Los passphrases de custodia no se registran en ningun repositorio, documento ni log; viajan por canal separado del archivo cifrado."
+}

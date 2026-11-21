@@ -14,7 +14,8 @@ fagx-data/
 │   ├── src/                             # etapas, sobre, guards, cuota
 │   ├── test/                            # node:test (JVM-free, corren en segundos)
 │   ├── keys/solo-test/                  # clave de test commiteada (intencional, desechable)
-│   ├── keys/beta/                       # mitad pública de la clave beta; la privada es secreto de Actions
+│   ├── keys/beta-2026-11-b/             # mitad pública de la clave beta vigente; la privada es secreto de Actions
+│   ├── keys/beta/                       # mitad pública de la clave beta retirada (solo verificación histórica, seq 1)
 │   └── fixtures/                        # reportes ficticios + lista dorada del dry-run
 ├── builds/                              # bitácora por publicación: conteos y hashes, nunca números
 └── docs/                                # este runbook, formato del sobre, rotación
@@ -54,7 +55,8 @@ Para operaciones manuales de mantenedor (nivel test, desechable):
 ```bash
 cd pipeline
 node run.js publish --key-solo-test   # firma con la clave de test commiteada
-# opciones: --secuencia N (override, justificado en la bitácora) · --modo TAG
+# opciones: --secuencia N (override, justificado en la bitácora) · --modo TAG · --allow-shrink (override supervisado del guard)
+# --lista-vacia: lista vacía de ceremonia (rotación/compromiso, P-09/Q3): solo prefijos 600/809, modo ceremonia-rotacion
 # la ruta beta usa el mismo comando con BLOCKLIST_SIGNING_KEY_BETA en el entorno
 ```
 
