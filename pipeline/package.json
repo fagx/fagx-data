@@ -1,0 +1,18 @@
+{
+  "name": "fagx-data-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fagx blocklist pipeline (ingest -> aggregate -> sign -> publish -> cleanup). Dry-run mode runs against the Firestore emulator with fixtures.",
+  "type": "commonjs",
+  "scripts": {
+    "ci": "node run.js ci",
+    "dry-run": "node run.js dry-run",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

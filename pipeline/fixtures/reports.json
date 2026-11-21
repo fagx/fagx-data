@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "descripcion": "Fixtures ficticios para el dry-run contra el Firestore emulator. Numeros de laboratorio (56912345678, ...); uid_hash = sha256(uid-fixture-N) truncado a 16 hex. now y cursor fijos para que el resultado sea determinista.",
+  "now": 1795219200,
+  "cursor": 1795132800,
+  "esperado": {
+    "nuevos": 5,
+    "numeros_afectados": 3,
+    "agregados": {
+      "600123456": {
+        "reportes": 1,
+        "reportantes": 1
+      },
+      "56912345678": {
+        "reportes": 2,
+        "reportantes": 2
+      },
+      "56922223333": {
+        "reportes": 2,
+        "reportantes": 2
+      }
+    },
+    "vencidos": 3,
+    "borrados": 3
+  },
+  "reports": [
+    {
+      "id": "uhash1_56912345678",
+      "numero": "56912345678",
+      "uid_hash": "0aaacf365335cfb3",
+      "creado_en": 1795215600,
+      "expira_en": 1802995200
+    },
+    {
+      "id": "uhash2_56922223333",
+      "numero": "56922223333",
+      "uid_hash": "47232056cf301c7c",
+      "creado_en": 1795212000,
+      "expira_en": 1802995200
+    },
+    {
+      "id": "uhash3_56912345678",
+      "numero": "56912345678",
+      "uid_hash": "21d5181b1e044d40",
+      "creado_en": 1795211200,
+      "expira_en": 1802995200
+    },
+    {
+      "id": "uhash4_600123456",
+      "numero": "600123456",
+      "uid_hash": "db849d86b39a500d",
+      "creado_en": 1795210200,
+      "expira_en": 1802995200
+    },
+    {
+      "id": "uhash5_56922223333",
+      "numero": "56922223333",
+      "uid_hash": "be7f94276addd2de",
+      "creado_en": 1795214200,
+      "expira_en": 1802995200
+    },
+    {
+      "id": "uhash6_56933334444",
+      "numero": "56933334444",
+      "uid_hash": "405d6b618436ee83",
+      "creado_en": 1795132700,
+      "expira_en": 1802995200
+    },
+    {
+      "id": "uhash7_56966667777",
+      "numero": "56966667777",
+      "uid_hash": "2377f58604cb6ce5",
+      "creado_en": 1790899200,
+      "expira_en": 1798675200
+    },
+    {
+      "id": "uhash8_56944445555",
+      "numero": "56944445555",
+      "uid_hash": "5eb0e2011caef958",
+      "creado_en": 1786579200,
+      "expira_en": 1794355200
+    },
+    {
+      "id": "uhash9_56955556666",
+      "numero": "56955556666",
+      "uid_hash": "163013516bc38bff",
+      "creado_en": 1786579200,
+      "expira_en": 1794355200
+    },
+    {
+      "id": "uhash10_56977778888",
+      "numero": "56977778888",
+      "uid_hash": "b4624296a07a3947",
+      "creado_en": 1786579200,
+      "expira_en": 1795132800
+    }
+  ]
+}
