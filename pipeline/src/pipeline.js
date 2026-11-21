@@ -18,6 +18,7 @@ const { signEnvelope, verifyEnvelope } = require('./envelope');
 const { checkPayload, listSize } = require('./payload');
 const { shrinkGuard } = require('./guards');
 const { quotaBudget, MODEL } = require('./quota');
+const { WINDOW_SECONDS, windowAdd, windowPrune, adaptiveCap, runsRemainingToday } = require('./window');
 
 const REPORTS_COLLECTION = 'reports';
 const AGGREGATES_COLLECTION = 'aggregates';
@@ -74,6 +75,87 @@ async function aggregate(store, reports) {
   // creado_en} so the 90-day window can shrink (finding F-04). Not in
   // the v0.1 pipeline.
   return { affectedNumbers: summary.length, writes, summary };
+}
+
+// --- agrega (v0.2: incremental with decrementable reporter window, F-04) ---
+
+/**
+ * Incremental v0.2 aggregation. Only the reports since the cursor are
+ * touched; each aggregate keeps `ventana_reportantes` {uid_hash ->
+ * last_report_en} so the distinct-reporter count lives in a 90-day
+ * window that can DECREMENT when pruning ages entries out (F-04).
+ * `reportes` stays a lifetime counter (audit trail); `reportantes` is
+ * the windowed distinct count the v0.2 community thresholds use.
+ * Re-reports by the same reporter slide their window entry forward and
+ * do NOT increase `reportantes` (dedup), but DO increase `reportes`.
+ */
+async function aggregateV2(store, reports, { nowEpoch } = {}) {
+  const atEpoch = nowEpoch ?? Math.floor(Date.now() / 1000);
+  const byNumber = new Map();
+  for (const r of reports) {
+    const numero = r.data.numero;
+    if (!byNumber.has(numero)) byNumber.set(numero, []);
+    byNumber.get(numero).push(r.data);
+  }
+  let writes = 0;
+  let newReporters = 0;
+  const summary = [];
+  for (const [numero, entries] of byNumber) {
+    const id = `u_${numero}`; // dry-run id; production uses uid-hash-scoped ids (create-only rules)
+    const existing = await store.getDoc(AGGREGATES_COLLECTION, id);
+    const prev = existing
+      ? existing.data
+      : { reportes: 0, reportantes: 0, ventana_reportantes: {} };
+    let ventana = prev.ventana_reportantes || {};
+    const reportersBefore = Object.keys(ventana).length;
+    for (const e of entries) {
+      ventana = windowAdd(ventana, e.uid_hash, e.creado_en);
+    }
+    const reportersAfter = Object.keys(ventana).length;
+    newReporters += reportersAfter - reportersBefore;
+    const next = {
+      reportes: (prev.reportes || 0) + entries.length,
+      reportantes: prev.reportantes ? Math.max(prev.reportantes, reportersAfter) : reportersAfter,
+      ventana_reportantes: ventana,
+      actualizado_en: atEpoch,
+    };
+    await store.setDoc(AGGREGATES_COLLECTION, id, next);
+    writes += 1;
+    summary.push({ numero, reportes: next.reportes, reportantes: next.reportantes });
+  }
+  return { affectedNumbers: summary.length, writes, newReporters, summary };
+}
+
+/**
+ * Prune stale reporter windows across all aggregates (F-04). Entries
+ * with `last_report_en <= now - 90d` drop and `reportantes` decrements
+ * with them; `reportes` is never touched. Returns per-number prune
+ * counts so the dry-run can assert the window decrements.
+ */
+async function pruneWindows(store, nowEpoch) {
+  const aggregates = await store.listDocs(AGGREGATES_COLLECTION);
+  let prunedEntries = 0;
+  let touched = 0;
+  let writes = 0;
+  const summary = [];
+  for (const d of aggregates) {
+    const ventana = d.data.ventana_reportantes || {};
+    if (Object.keys(ventana).length === 0) continue;
+    const res = windowPrune(ventana, nowEpoch, WINDOW_SECONDS);
+    if (res.dropped > 0) {
+      await store.setDoc(AGGREGATES_COLLECTION, d.id, {
+        ...d.data,
+        reportantes: res.reportantes,
+        ventana_reportantes: res.ventana,
+        actualizado_en: nowEpoch,
+      });
+      writes += 1;
+      prunedEntries += res.dropped;
+      touched += 1;
+      summary.push({ id: d.id, pruned: res.dropped, reportantes: res.reportantes });
+    }
+  }
+  return { prunedEntries, touched, writes, summary };
 }
 
 // --- build payload ---
@@ -172,6 +254,42 @@ async function saveStatus(store, { cursor, secuencia }) {
   await store.setDoc(STATUS_COLLECTION, STATUS_DOC, { cursor_en: cursor, secuencia });
 }
 
+/**
+ * v0.2 cleanup (F-03): same queue discipline as cleanupExpired, but the
+ * per-run cap is ADAPTIVE — the pending backlog is spread over the
+ * remaining scheduled runs of the day (`adaptiveCap`), so a burst is
+ * absorbed across runs instead of blowing the prudent cap or the Spark
+ * delete quota. Persists the queue state under pipeline_status/cleanup
+ * and raises the runbook alert when pending exceeds the threshold.
+ */
+async function cleanupExpiredV2(store, nowEpoch) {
+  const all = await store.listDocs(REPORTS_COLLECTION);
+  const expired = all.filter((d) => Number(d.data.expira_en) < nowEpoch).map((d) => d.id);
+  const pending = expired.length;
+  const cap = adaptiveCap({ pending, runsRemainingToday: runsRemainingToday(nowEpoch) });
+  const toDelete = expired.slice(0, cap);
+  let deleted = 0;
+  const batches = [];
+  for (let i = 0; i < toDelete.length; i += MODEL.batchSize) {
+    const batch = toDelete.slice(i, i + MODEL.batchSize);
+    batches.push(batch.length);
+    deleted += await store.batchDelete(REPORTS_COLLECTION, batch);
+  }
+  const pendingAfter = pending - deleted;
+  const alert = pendingAfter > MODEL.pendingAlertThreshold
+    ? `ALERT_PENDING_EXPIRED:${pendingAfter}`
+    : null;
+  await store.setDoc('pipeline_status', 'cleanup', {
+    last_run_en: nowEpoch,
+    pending_antes: pending,
+    borrados: deleted,
+    pendientes: pendingAfter,
+    tope_lote: cap,
+    alerta: alert || '',
+  });
+  return { deleted, pending, pendingAfter, cap, batches, alert };
+}
+
 module.exports = {
   PREFIJOS,
   REPORTS_COLLECTION,
@@ -180,9 +298,12 @@ module.exports = {
   STATUS_DOC,
   ingest,
   aggregate,
+  aggregateV2,
+  pruneWindows,
   loadInstitutional,
   buildPayload,
   publish,
   cleanupExpired,
+  cleanupExpiredV2,
   saveStatus,
 };

@@ -10,22 +10,41 @@
  */
 
 class FirestoreEmulatorStore {
-  constructor({ emulatorHost, projectId }) {
+  /**
+   * `admin: true` sends the emulator's admin token (`Bearer owner`), which
+   * bypasses security rules — the pipeline service account's stand-in. With
+   * `admin: false` the store speaks as an unauthenticated client, so rules
+   * enforcement is exercised exactly as the app would hit it.
+   */
+  constructor({ emulatorHost, projectId, admin = true, authUid = null } = {}) {
     // firebase emulators:exec exports FIRESTORE_EMULATOR_HOST as host:port
     this.host = emulatorHost || process.env.FIRESTORE_EMULATOR_HOST || 'localhost:8080';
     this.projectId = projectId || process.env.FIRESTORE_PROJECT_ID || 'fagx-dry-run';
     this.baseUrl = `http://${this.host}/v1/projects/${this.projectId}/databases/(default)/documents`;
+    this.admin = admin;
+    this.authUid = authUid;
+  }
+
+  authHeader() {
+    if (this.admin) return `Bearer owner`;
+    if (this.authUid) return `Bearer ${emulatorIdToken(this.authUid, this.projectId)}`;
+    return undefined;
   }
 
   async request(path_, method, body) {
     const res = await fetch(`${this.baseUrl}${path_}`, {
       method,
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: {
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
+        ...(this.authHeader() ? { Authorization: this.authHeader() } : {}),
+      },
       body: body ? JSON.stringify(body) : undefined,
     });
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`firestore REST ${method} ${path_} -> ${res.status}: ${text.slice(0, 300)}`);
+      const err = new Error(`firestore REST ${method} ${path_} -> ${res.status}: ${text.slice(0, 300)}`);
+      err.status = res.status;
+      throw err;
     }
     if (res.status === 200 || res.status === 201) {
       const text = await res.text();
@@ -42,6 +61,12 @@ function encodeValue(v) {
   if (typeof v === 'boolean') return { booleanValue: v };
   if (Number.isInteger(v)) return { integerValue: String(v) };
   if (typeof v === 'number') return { doubleValue: v };
+  if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+    // plain object -> Firestore map (ventana_reportantes, cleanup state)
+    const fields = {};
+    for (const [k, val] of Object.entries(v)) fields[k] = encodeValue(val);
+    return { mapValue: { fields } };
+  }
   throw new TypeError(`unsupported field type: ${typeof v}`);
 }
 
@@ -51,6 +76,11 @@ function decodeValue(raw) {
   if ('integerValue' in raw) return Number(raw.integerValue);
   if ('doubleValue' in raw) return Number(raw.doubleValue);
   if ('nullValue' in raw) return null;
+  if ('mapValue' in raw) {
+    const out = {};
+    for (const [k, v] of Object.entries(raw.mapValue.fields || {})) out[k] = decodeValue(v);
+    return out;
+  }
   throw new TypeError(`unsupported firestore value: ${JSON.stringify(raw).slice(0, 120)}`);
 }
 
@@ -70,6 +100,28 @@ function docIdFromName(name) {
   return name.split('/').pop();
 }
 
+/**
+ * Unsigned ID-token-shaped JWT the emulator accepts as request.auth
+ * (the emulator decodes the claims and skips signature verification,
+ * exactly like a rules unit test's authenticatedContext). Only for
+ * emulator probes — never sent to production.
+ */
+function emulatorIdToken(uid, projectId) {
+  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const now = Math.floor(Date.now() / 1000);
+  const header = b64({ alg: 'none', typ: 'JWT' });
+  const claims = b64({
+    sub: uid,
+    user_id: uid,
+    aud: projectId,
+    iss: `https://securetoken.google.com/${projectId}`,
+    auth_time: now - 60,
+    iat: now - 60,
+    exp: now + 3_600,
+  });
+  return `${header}.${claims}.`;
+}
+
 // --- store operations used by the pipeline stages ---
 
 /** Create or overwrite a document with an explicit id. */
@@ -77,10 +129,19 @@ FirestoreEmulatorStore.prototype.setDoc = async function setDoc(collection, id, 
   await this.request(`/${collection}/${id}`, 'PATCH', encodeFields(data));
 };
 
-/** List all documents of a collection (dry-run scale only). */
+/** List all documents of a collection, following page tokens (dry-run scale). */
 FirestoreEmulatorStore.prototype.listDocs = async function listDocs(collection) {
-  const res = await this.request(`/${collection}?pageSize=1000`, 'GET');
-  return (res.documents || []).map((d) => ({ id: docIdFromName(d.name), data: decodeFields(d) }));
+  const out = [];
+  let pageToken = '';
+  do {
+    const url = `/${collection}?pageSize=1000${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+    const res = await this.request(url, 'GET');
+    for (const d of res.documents || []) {
+      out.push({ id: docIdFromName(d.name), data: decodeFields(d) });
+    }
+    pageToken = res.nextPageToken || '';
+  } while (pageToken);
+  return out;
 };
 
 /** Remove every document of a collection (dry-run determinism). */
@@ -126,9 +187,28 @@ FirestoreEmulatorStore.prototype.getDoc = async function getDoc(collection, id) 
     const d = await this.request(`/${collection}/${id}`, 'GET');
     return { id, data: decodeFields(d) };
   } catch (err) {
-    if (String(err).includes('404')) return null;
+    if (err.status === 404) return null;
     throw err;
   }
+};
+
+/**
+ * Fire a request and return its HTTP status instead of throwing — the
+ * rules test asserts on statuses (denied = 403, allowed = 2xx) exactly
+ * as a rules unit test would assert on outcomes.
+ */
+FirestoreEmulatorStore.prototype.probe = async function probe(path_, method, body) {
+  const headers = {
+    ...(body ? { 'Content-Type': 'application/json' } : {}),
+    ...(this.authHeader() ? { Authorization: this.authHeader() } : {}),
+  };
+  const res = await fetch(`${this.baseUrl}${path_}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  await res.text().catch(() => '');
+  return res.status;
 };
 
 /**
@@ -146,4 +226,4 @@ FirestoreEmulatorStore.prototype.batchDelete = async function batchDelete(collec
   return deleted;
 };
 
-module.exports = { FirestoreEmulatorStore };
+module.exports = { FirestoreEmulatorStore, emulatorIdToken };

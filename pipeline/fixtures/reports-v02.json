@@ -1,0 +1,65 @@
+{
+  "schema_version": 2,
+  "descripcion": "Fixtures ficticios de la pista v0.2 (BE-03) para el dry-run contra el Firestore emulator. Numeros de laboratorio (56912345678, ...); uid_hash = sha256(uid-fixture-N) truncado a 16 hex. Reutiliza now y cursor de reports.json. La semilla simula estado de dias anteriores (agregado con un reportante vencido hace 100 dias y una cola de 5000 reportes expirados) para probar F-04 (ventana decrementable al podar) y F-03 (tope adaptativo de la cola de vencidos).",
+  "now": 1795219200,
+  "cursor": 1795132800,
+  "semilla": {
+    "agregados": [
+      {
+        "id": "u_56912345678",
+        "reportes": 1,
+        "reportantes": 1,
+        "ventana_reportantes": {
+          "aaaaaaaaaaaaaaaa": 1786579200
+        }
+      }
+    ],
+    "expiradas": 5000
+  },
+  "re_reportes": [
+    {
+      "id": "uhash11_56912345678",
+      "numero": "56912345678",
+      "uid_hash": "0aaacf365335cfb3",
+      "creado_en": 1795218000,
+      "expira_en": 1802994000
+    }
+  ],
+  "esperado": {
+    "agrega": {
+      "u_56912345678": {
+        "reportes": 4,
+        "reportantes": 3,
+        "nuevos_reportantes": 0
+      },
+      "u_56922223333": {
+        "reportes": 2,
+        "reportantes": 2
+      },
+      "u_600123456": {
+        "reportes": 1,
+        "reportantes": 1
+      }
+    },
+    "poda": {
+      "entradas_podadas": 1,
+      "u_56912345678": {
+        "reportes": 4,
+        "reportantes": 2
+      }
+    },
+    "borra": {
+      "corrida1": {
+        "tope": 1667,
+        "borrados": 1667,
+        "pendientes": 3333
+      },
+      "corrida2": {
+        "tope": 1667,
+        "borrados": 1667,
+        "pendientes": 1666
+      },
+      "alerta": null
+    }
+  }
+}

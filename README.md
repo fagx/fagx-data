@@ -13,7 +13,7 @@ Repositorio **público** de datos y pipeline de **Fagx**, filtro de llamadas par
 |---|---|
 | `blocklist.json` | Lista firmada publicada por Pages (formato en [`docs/sobre-firmado.md`](docs/sobre-firmado.md)) |
 | `data/institutional-allowlist.json` | Lista institucional (D4), semilla SEC-01 con 45 entradas verificadas ([criterio](docs/institutional-allowlist-criteria.md)); se edita **solo** por PR con revisión |
-| `pipeline/` | Pipeline de publicación + clave de test + fixtures del dry-run |
+| `pipeline/` | Pipeline de publicación + reglas de Firestore + claves + fixtures del dry-run |
 | `builds/` | Bitácora por publicación: secuencia, conteos y hashes, nunca números |
 | `schemas/` | JSON Schema de la lista institucional, del sobre y del payload |
 | `docs/` | Formato del sobre firmado, [rotación de claves](docs/rotacion-de-claves.md), [runbook](docs/runbook.md) |
@@ -41,5 +41,16 @@ npm ci
 node run.js ci
 npx firebase-tools emulators:exec --only firestore --project fagx-dry-run "node run.js dry-run"
 ```
+
+### Pista v0.2 (BE-03, no bloqueante para v0.1)
+
+El emulator carga `pipeline/firestore.rules`; contra él corren dos etapas extra:
+
+```bash
+npx firebase-tools emulators:exec --only firestore --project fagx-dry-run "node run.js rules-test && node run.js dry-run-v02"
+```
+
+- `rules-test`: matriz de denegación de las reglas (la app solo puede **crear** reportes con la forma exacta y la ventana de 90 días; agregados y estado sin acceso cliente; el pipeline corre como admin).
+- `dry-run-v02`: agregación incremental con `ventana_reportantes` que **decrementa al podar** (F-04, retención 90 días) y tope **adaptativo** de la cola de vencidos repartido entre las corridas del día (F-03), con fixtures deterministas.
 
 Ver el [runbook](docs/runbook.md) para publicación, guard de encogimiento, cuotas e incidencias.

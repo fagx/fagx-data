@@ -7,11 +7,13 @@
  * as a CI guard. Real consumption is recorded per publication in
  * builds/ (counts and hashes, never numbers).
  *
- * Model per day at a sustained volume of N reports/day:
+ * Model per day at a sustained volume of N reports/day (v0.2 track):
  * - Reads: cursor read (1) + N new reports (query) + aggregate doc reads
- *   (~1 per affected number; ~2% of N, to be measured in builds/).
- * - Writes: aggregate doc writes (~1 per affected number) + pipeline
- *   status (1) + builds/ log (1).
+ *   (~1 per affected number; ~2% of N, to be measured in builds/) + the
+ *   prune pass over aggregates (F-04, same ~2% estimate).
+ * - Writes: aggregate doc writes (~1 per affected number) + prune writes
+ *   (upper bound ~1 per affected number) + pipeline status (2: global +
+ *   cleanup) + builds/ log (1).
  * - Deletes: at steady state N reports/day expire (90-day window). The
  *   cleanup stage deletes with adaptive batches (F-03): batches of 500,
  *   up to a prudent per-run cap, across the daily runs, staying under
@@ -50,8 +52,8 @@ function quotaBudget(reportsPerDay, opts = {}) {
   }
   const pendingExpired = opts.pendingExpired ?? 0;
   const affectedNumbers = Math.ceil(reportsPerDay * MODEL.aggregateUniqueness);
-  const reads = 1 + reportsPerDay + affectedNumbers;
-  const writes = affectedNumbers + 2; // aggregates + status + builds log
+  const reads = 1 + reportsPerDay + affectedNumbers * 2; // aggregate reads + prune pass (F-04)
+  const writes = affectedNumbers * 2 + 3; // aggregates + prune + status x2 + builds log
   const deletes = reportsPerDay; // steady state: everything expires within 90 days
   const deleteCapacity = deleteCapacityPerDay();
   const alerts = [];
